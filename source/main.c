@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#define SPEED 100
+#define SPEED 200
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
 
