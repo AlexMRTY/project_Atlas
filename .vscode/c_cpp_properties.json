@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "macos-clang-x64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/local/Cellar/sdl2/2.26.4/include"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "${default}",
+            "cppStandard": "${default}",
+            "intelliSenseMode": "macos-clang-x64",
+            "compilerArgs": [
+                ""
+            ],
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
