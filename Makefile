@@ -1,17 +1,27 @@
-# Makefile for Windows
-SRCDIR=./source
-CC=gcc
-INCLUDE = C:\msys64\mingw64\include\SDL2
+# Location of where hello.c is stored in
+SRCDIR=./src
 
-CFLAGS = -g -I$(INCLUDE) -c 
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm
+# Name of the compiler, GNU GCC in this case
+CC=gcc-12
 
-simpleSDLexample1: main.o
-	$(CC) main.o -o simpleSDLexample1 $(LDFLAGS)
+# Any include directories
+INCLUDE = -I/usr/local/include/SDL2
 
-main.o: $(SRCDIR)/main.c
-	$(CC) $(CFLAGS) $(SRCDIR)/main.c
+# Any flags for the compiler
+CFLAGS = -g -c $(INCLUDE)
+
+# Any libraries to link with
+LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net
+
+# Extra flags to give to compilers when they are supposed to invoke the linker
+#LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
+LDFLAGS = -lSDL2main -lSDL2
+
+main:
+	@echo "Building Hello"
+	$(CC) $(CFLAGS) $(SRCDIR)/main.c -o $@.o 
+	$(CC) main.o -o main $(LDFLAGS) -L $(LIBS)
 
 clean:
-	rm *.exe
-	rm *.o
+	rm -f main.o
+	rm -f main
