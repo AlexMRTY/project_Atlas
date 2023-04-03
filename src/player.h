@@ -13,6 +13,9 @@ void initializePlayer();
 bool isGameRunnin();
 struct Player *getPlayer();
 void movePlayer(int playerid, int x, int y);
+<<<<<<< HEAD
 void updateAllPlayers();
+=======
+>>>>>>> 64ed7ccae572e3828ab5cfd8757468cafa4d1cf1
 
 #endif
