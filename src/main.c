@@ -2,10 +2,16 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include "SDL2/SDL_net.h"
+
+#include "player.h"
 
 #define SPEED 200 // 100
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
+
+#define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 2000
 
 int main(int argv, char **args)
 {
@@ -51,107 +57,94 @@ int main(int argv, char **args)
         return 1;
     }
 
-    SDL_Rect shipRect;
-    SDL_QueryTexture(pTexture, NULL, NULL, &shipRect.w, &shipRect.h);
-    shipRect.w /= 4;
-    shipRect.h /= 4;
-    float shipX = (WINDOW_WIDTH - shipRect.w) / 2;  // left side
-    float shipY = (WINDOW_HEIGHT - shipRect.h) / 2; // upper side
-    float shipVelocityX = 0;                        // unit: pixels/s
-    float shipVelocityY = 0;
+    SDLNet_Init();
 
-    bool closeWindow = false;
-    bool up, down, left, right;
-    up = down = left = right = false;
-
-    while (!closeWindow)
+    UDPsocket client_socket = SDLNet_UDP_Open(0);
+    if (client_socket == NULL)
     {
+        printf("Failed to open socket: %s\n", SDLNet_GetError());
+        return 1;
+    }
 
+    IPaddress server_address;
+    if (SDLNet_ResolveHost(&server_address, SERVER_IP, SERVER_PORT) == -1)
+    {
+        printf("Failed to resolve server address: %s\n", SDLNet_GetError());
+        return 1;
+    }
+
+    UDPpacket *packet = SDLNet_AllocPacket(512);
+    packet->address.host = server_address.host;
+    packet->address.port = server_address.port;
+
+    int number_of_player = 0;
+    Player player = {0, {100, 100, 50, 50}, packet->address}; // Create new player at (100, 100)
+
+    while (1)
+    {
+        // Get player input
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            switch (event.type)
+            if (event.type == SDL_QUIT)
             {
-            case SDL_QUIT:
-                closeWindow = true;
-                break;
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.scancode)
+                goto quit;
+            }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                switch (event.key.keysym.sym)
                 {
-                case SDL_SCANCODE_W:
-                case SDL_SCANCODE_UP:
-                    up = true;
+                case SDLK_UP:
+                    player.rect.y -= 5;
                     break;
-                case SDL_SCANCODE_A:
-                case SDL_SCANCODE_LEFT:
-                    left = true;
+                case SDLK_DOWN:
+                    player.rect.y += 5;
                     break;
-                case SDL_SCANCODE_S:
-                case SDL_SCANCODE_DOWN:
-                    down = true;
+                case SDLK_LEFT:
+                    player.rect.x -= 5;
                     break;
-                case SDL_SCANCODE_D:
-                case SDL_SCANCODE_RIGHT:
-                    right = true;
+                case SDLK_RIGHT:
+                    player.rect.x += 5;
                     break;
                 }
-                break;
-            case SDL_KEYUP:
-                switch (event.key.keysym.scancode)
-                {
-                case SDL_SCANCODE_W:
-                case SDL_SCANCODE_UP:
-                    up = false;
-                    break;
-                case SDL_SCANCODE_A:
-                case SDL_SCANCODE_LEFT:
-                    left = false;
-                    break;
-                case SDL_SCANCODE_S:
-                case SDL_SCANCODE_DOWN:
-                    down = false;
-                    break;
-                case SDL_SCANCODE_D:
-                case SDL_SCANCODE_RIGHT:
-                    right = false;
-                    break;
-                }
-                break;
             }
         }
 
-        shipVelocityX = shipVelocityY = 0;
-        if (up && !down)
-            shipVelocityY = -SPEED;
-        if (down && !up)
-            shipVelocityY = SPEED;
-        if (left && !right)
-            shipVelocityX = -SPEED;
-        if (right && !left)
-            shipVelocityX = SPEED;
-        shipX += shipVelocityX / 60; // 60 frames/s
-        shipY += shipVelocityY / 60;
-        if (shipX < 0)
-            shipX = 0;
-        if (shipY < 0)
-            shipY = 0;
-        if (shipX > WINDOW_WIDTH - shipRect.w)
-            shipX = WINDOW_WIDTH - shipRect.w;
-        if (shipY > WINDOW_HEIGHT - shipRect.h)
-            shipY = WINDOW_HEIGHT - shipRect.h;
-        shipRect.x = shipX;
-        shipRect.y = shipY;
+        // Send player position update to server
+        sprintf((char *)packet->data, "%d %d %d", player.rect.x, player.rect.y, player.id);
+        packet->len = strlen((char *)packet->data) + 1;
+        SDLNet_UDP_Send(client_socket, -1, packet);
 
+        // Receive updates from other players
+        while (SDLNet_UDP_Recv(client_socket, packet))
+        {
+            printf("UDP Packet from another player\n");
+            printf("\tData:    %s\n", (char *)packet->data);
+            printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
+
+            int dx, dy, player_id;
+            sscanf((char *)packet->data, "%d %d %d", &dx, &dy, &player_id);
+
+            player.rect.x = dx;
+            player.rect.y = dy;
+        }
+
+        // Clear screen
+        SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
         SDL_RenderClear(pRenderer);
-        SDL_RenderCopy(pRenderer, pTexture, NULL, &shipRect);
+
+        // Render players
+        SDL_SetRenderDrawColor(pRenderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(pRenderer, &player.rect);
+
         SDL_RenderPresent(pRenderer);
-        SDL_Delay(1000 / 60); // 60 frames/s
     }
 
-    SDL_DestroyTexture(pTexture);
-    SDL_DestroyRenderer(pRenderer);
-    SDL_DestroyWindow(pWindow);
-
+quit:
+    SDLNet_FreePacket(packet);
+    SDLNet_UDP_Close(client_socket);
+    SDLNet_Quit();
     SDL_Quit();
+
     return 0;
 }

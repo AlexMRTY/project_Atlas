@@ -1,27 +1,30 @@
-# Location of where hello.c is stored in
 SRCDIR=./src
 
-# Name of the compiler, GNU GCC in this case
 CC=gcc-12
 
-# Any include directories
-INCLUDE = -I/usr/local/include/SDL2
+INCLUDE = -I/usr/local/include
 
-# Any flags for the compiler
 CFLAGS = -g -c $(INCLUDE)
 
-# Any libraries to link with
-LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net
+LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main
 
-# Extra flags to give to compilers when they are supposed to invoke the linker
-#LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -mwindows
-LDFLAGS = -lSDL2main -lSDL2
+LDFLAGS = -Wl,-rpath,/usr/local/lib
 
-main:
-	@echo "Building Hello"
-	$(CC) $(CFLAGS) $(SRCDIR)/main.c -o $@.o 
-	$(CC) main.o -o main $(LDFLAGS) -L $(LIBS)
+all: main server
+
+main: main.o
+	$(CC) main.o -o main $(LDFLAGS) $(LIBS)
+
+main.o: $(SRCDIR)/main.c
+	$(CC) $(CFLAGS) $(SRCDIR)/main.c -o main.o
+
+server: server.o
+	$(CC) server.o -o server $(LDFLAGS) $(LIBS)
+
+server.o: $(SRCDIR)/server.c
+	$(CC) $(CFLAGS) $(SRCDIR)/server.c -o server.o
 
 clean:
-	rm -f main.o
+	rm -f *.o
 	rm -f main
+	rm -f server
