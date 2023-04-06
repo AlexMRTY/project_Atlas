@@ -3,7 +3,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "SDL2/SDL_net.h"
-
 #include "player.h"
 
 #define SPEED 200 // 100
@@ -11,7 +10,8 @@
 #define WINDOW_HEIGHT 400
 
 #define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 2000
+#define SERVER_PORT 12345
+#define MAX_PLAYERS 4
 
 int main(int argv, char **args)
 {
@@ -74,73 +74,140 @@ int main(int argv, char **args)
     }
 
     UDPpacket *packet = SDLNet_AllocPacket(512);
+    UDPpacket *recieve = SDLNet_AllocPacket(512);
     packet->address.host = server_address.host;
     packet->address.port = server_address.port;
 
     int number_of_player = 0;
-    Player player = {0, {100, 100, 50, 50}, packet->address}; // Create new player at (100, 100)
+    Player players[MAX_PLAYERS];
+    Player me;
+    bool joinedServer = false;
+    bool quit = false;
 
-    while (1)
+    // Send request
+    strcpy((char *)packet->data, "join_request");
+    packet->len = strlen((char *)packet->data) + 1;
+    SDLNet_UDP_Send(client_socket, -1, packet);
+
+    printf("Request Send\n");
+
+    while (!quit)
     {
+        // Receive updates from other players
+        while (SDLNet_UDP_Recv(client_socket, recieve))
+        {
+            printf("UDP Packet from server\n");
+            printf("\tData:    %s\n", (char *)recieve->data);
+            printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
+
+            int x, y, id;
+            int x2, y2, id2;
+            if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d", &x, &y, &id) == 3 && number_of_player < MAX_PLAYERS)
+            {
+                printf("Joined server!\n");
+                Player player = {id, {x, y, 50, 50}};
+                players[number_of_player] = player;
+                me = player;
+                number_of_player++;
+                joinedServer = true;
+            }
+            else if (sscanf((char *)recieve->data, "player_data %d %d %d", &x2, &y2, &id2) == 3)
+            {
+                printf("data from other players\n");
+                int index = -1;
+
+                if (number_of_player < MAX_PLAYERS)
+                {
+                    bool found = false;
+                    for (int i = 0; i < number_of_player; i++)
+                    {
+                        if (players[i].id == id2)
+                        {
+                            found = true;
+                            index = i;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        Player player = {id2, {x2, y2, 50, 50}};
+                        players[number_of_player] = player;
+                        number_of_player++;
+                        printf("Added player with ID %d\n", id2);
+                    }
+                    else
+                    {
+                        players[index].rect.x = x2;
+                        players[index].rect.y = y2;
+                        printf("Player Already exist\n");
+                    }
+                }
+            }
+            else
+            {
+                printf("Unknown message received: %s\n", (char *)packet->data);
+            }
+        }
+
         // Get player input
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT)
             {
-                goto quit;
+                quit = true;
             }
             else if (event.type == SDL_KEYDOWN)
             {
                 switch (event.key.keysym.sym)
                 {
                 case SDLK_UP:
-                    player.rect.y -= 5;
+                    me.rect.y -= 5;
                     break;
                 case SDLK_DOWN:
-                    player.rect.y += 5;
+                    me.rect.y += 5;
                     break;
                 case SDLK_LEFT:
-                    player.rect.x -= 5;
+                    me.rect.x -= 5;
                     break;
                 case SDLK_RIGHT:
-                    player.rect.x += 5;
+                    me.rect.x += 5;
                     break;
                 }
             }
         }
-
-        // Send player position update to server
-        sprintf((char *)packet->data, "%d %d %d", player.rect.x, player.rect.y, player.id);
-        packet->len = strlen((char *)packet->data) + 1;
-        SDLNet_UDP_Send(client_socket, -1, packet);
-
-        // Receive updates from other players
-        while (SDLNet_UDP_Recv(client_socket, packet))
+        if (joinedServer)
         {
-            printf("UDP Packet from another player\n");
-            printf("\tData:    %s\n", (char *)packet->data);
-            printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
+            // Send player position update to server
+            sprintf((char *)packet->data, "%d %d %d", me.rect.x, me.rect.y, me.id);
+            packet->len = strlen((char *)packet->data) + 1;
+            SDLNet_UDP_Send(client_socket, -1, packet);
 
-            int dx, dy, player_id;
-            sscanf((char *)packet->data, "%d %d %d", &dx, &dy, &player_id);
+            printf("Sending data\n");
+            printf("MY ID: %d\n", me.id);
 
-            player.rect.x = dx;
-            player.rect.y = dy;
+            SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
+            SDL_RenderClear(pRenderer);
+
+            // Render all players
+            for (int i = 0; i < number_of_player; i++)
+            {
+                SDL_Rect rect = players[i].rect;
+                SDL_RenderCopy(pRenderer, pTexture, NULL, &rect);
+                printf("Draw Players\n");
+            }
+
+            // Render my player
+            SDL_RenderCopy(pRenderer, pTexture, NULL, &me.rect);
+
+            SDL_RenderPresent(pRenderer);
         }
-
-        // Clear screen
-        SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
-        SDL_RenderClear(pRenderer);
-
-        // Render players
-        SDL_SetRenderDrawColor(pRenderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(pRenderer, &player.rect);
-
-        SDL_RenderPresent(pRenderer);
     }
 
-quit:
+    SDL_DestroyTexture(pTexture);
+    SDL_DestroyRenderer(pRenderer);
+    SDL_DestroyWindow(pWindow);
+
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(client_socket);
     SDLNet_Quit();

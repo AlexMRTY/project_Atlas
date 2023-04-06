@@ -9,7 +9,7 @@
 
 #include "player.h"
 
-#define SERVER_PORT 2000
+#define SERVER_PORT 12345
 #define MAX_PLAYERS 4
 
 int main(int argc, char **argv)
@@ -30,23 +30,39 @@ int main(int argc, char **argv)
     }
 
     UDPpacket *packet = SDLNet_AllocPacket(512);
-
-    Player players[MAX_PLAYERS] = {0};
+    UDPpacket *recieve = SDLNet_AllocPacket(512);
+    Player players[MAX_PLAYERS];
     int number_of_players = 0;
 
     while (1)
     {
         // Receive player updates
-        while (SDLNet_UDP_Recv(server_socket, packet))
+        // Receive player updates and join requests
+        while (SDLNet_UDP_Recv(server_socket, recieve))
         {
             printf("UDP Packet incoming\n");
-            printf("\tData:    %s\n", (char *)packet->data);
-            printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
+            printf("\tData:    %s\n", (char *)recieve->data);
+            printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
 
             int dx, dy, player_id;
-            sscanf((char *)packet->data, "%d %d %d", &dx, &dy, &player_id);
+            sscanf((char *)recieve->data, "%d %d %d", &dx, &dy, &player_id);
 
-            bool player_found = false;
+            if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
+            {
+                Player player = {number_of_players, {100, 100, 50, 50}, recieve->address};
+                players[number_of_players] = player;
+                number_of_players++;
+                printf("Player joined with ID %d\n", player.id);
+
+                packet->address.host = players[number_of_players - 1].address.host;
+                packet->address.port = players[number_of_players - 1].address.port;
+                sprintf((char *)packet->data, "join_accept %d %d %d", player.rect.x, player.rect.y, player.id);
+                packet->len = strlen((char *)packet->data) + 1;
+                SDLNet_UDP_Send(server_socket, -1, packet);
+
+                memset(packet->data, 0, sizeof(packet->data));
+            }
+
             for (int i = 0; i < number_of_players; i++)
             {
                 if (players[i].id == player_id)
@@ -54,37 +70,28 @@ int main(int argc, char **argv)
                     // Update existing player's position
                     players[i].rect.x = dx;
                     players[i].rect.y = dy;
-                    player_found = true;
+                    printf("Update\n");
                     break;
                 }
             }
 
-            if (!player_found && number_of_players < MAX_PLAYERS)
+            // Send player updates to all clients
+            for (int i = 0; i < number_of_players; i++)
             {
-                // Add new player
-                Player new_player = {player_id, {dx, dy, 50, 50}, packet->address};
-                players[number_of_players] = new_player;
-                number_of_players++;
-                printf("The code has Successfully added a new player to the server ");
-            }
-        }
+                UDPpacket *update_packet = SDLNet_AllocPacket(512);
+                update_packet->address.host = players[i].address.host; // set host to the client address
+                update_packet->address.port = players[i].address.port; // set port to the client address
 
-        // Send player updates to all clients
-        for (int i = 0; i < number_of_players; i++)
-        {
-            Player *player = &players[i];
-
-            sprintf((char *)packet->data, "%d %d %d", player->rect.x, player->rect.y, player->id);
-            packet->len = strlen((char *)packet->data) + 1;
-
-            for (int j = 0; j < number_of_players; j++)
-            {
-                if (i != j)
+                for (int j = 0; j < number_of_players; j++)
                 {
-                    packet->address.host = players[j].address.host;
-                    packet->address.port = players[j].address.port;
-                    SDLNet_UDP_Send(server_socket, -1, packet);
+                    sprintf((char *)update_packet->data, "player_data %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id);
+                    update_packet->len = strlen((char *)update_packet->data) + 1;
+
+                    SDLNet_UDP_Send(server_socket, -1, update_packet);
+                    printf("Sending data to player %d\n", players[i].id);
                 }
+
+                SDLNet_FreePacket(update_packet);
             }
         }
     }
