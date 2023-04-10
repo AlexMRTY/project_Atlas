@@ -1,30 +1,35 @@
 SRCDIR=./src
+DIR_SEP=/
 
-CC=gcc-12
+ifeq ($(OS),Windows_NT)
+    # Windows-specific libraries
+	INCLUDE = -L/opt/homebrew/lib/
+    LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
+    RM = del /Q
+else
+    # Mac-specific libraries
+    INCLUDE = -I/usr/local/include
+    LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main
+    LDFLAGS = -Wl,-rpath,/usr/local/lib
+    RM = rm -f
+endif
 
-INCLUDE = -I/usr/local/include
-
+CC=gcc
 CFLAGS = -g -c $(INCLUDE)
-
-LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main
-
-LDFLAGS = -Wl,-rpath,/usr/local/lib
 
 all: main server
 
 main: main.o
 	$(CC) main.o -o main $(LDFLAGS) $(LIBS)
 
-main.o: $(SRCDIR)/main.c
-	$(CC) $(CFLAGS) $(SRCDIR)/main.c -o main.o
+main.o: $(SRCDIR)$(DIR_SEP)main.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)main.c -o main.o
 
 server: server.o
 	$(CC) server.o -o server $(LDFLAGS) $(LIBS)
 
-server.o: $(SRCDIR)/server.c
-	$(CC) $(CFLAGS) $(SRCDIR)/server.c -o server.o
+server.o: $(SRCDIR)$(DIR_SEP)server.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)server.c -o server.o
 
 clean:
-	rm -f *.o
-	rm -f main
-	rm -f server
+	$(RM) *.o main server

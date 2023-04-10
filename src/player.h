@@ -1,6 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include "/usr/local/include/SDL2/SDL.h"
+#include "SDL2/SDL.h"
 #include <stdbool.h>
 
 typedef struct
