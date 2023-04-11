@@ -1,36 +1,36 @@
-#include <stdio.h>
-#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <stdbool.h>
+#include <stdio.h>
+
 #include "SDL2/SDL_net.h"
 #include "player.h"
 
-#define SPEED 200 // 100
+#define SPEED 200  // 100
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
+#define PLAYER_MOVE_SPEED 5
+#define PLAYER_HIGHT 100
+#define PLAYER_WIDTH 100
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 12345
 #define MAX_PLAYERS 4
 
-int main(int argv, char **args)
-{
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
+int main(int argv, char **args) {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
 
     SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-    if (!pWindow)
-    {
+    if (!pWindow) {
         printf("Error: %s\n", SDL_GetError());
         SDL_Quit();
         return 1;
     }
     SDL_Renderer *pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!pRenderer)
-    {
+    if (!pRenderer) {
         printf("Error: %s\n", SDL_GetError());
         SDL_DestroyWindow(pWindow);
         SDL_Quit();
@@ -38,8 +38,7 @@ int main(int argv, char **args)
     }
 
     SDL_Surface *pSurface = IMG_Load("resources/ship.png");
-    if (!pSurface)
-    {
+    if (!pSurface) {
         printf("Error: %s\n", SDL_GetError());
         SDL_DestroyRenderer(pRenderer);
         SDL_DestroyWindow(pWindow);
@@ -48,8 +47,7 @@ int main(int argv, char **args)
     }
     SDL_Texture *pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
     SDL_FreeSurface(pSurface);
-    if (!pTexture)
-    {
+    if (!pTexture) {
         printf("Error: %s\n", SDL_GetError());
         SDL_DestroyRenderer(pRenderer);
         SDL_DestroyWindow(pWindow);
@@ -60,15 +58,13 @@ int main(int argv, char **args)
     SDLNet_Init();
 
     UDPsocket client_socket = SDLNet_UDP_Open(0);
-    if (client_socket == NULL)
-    {
+    if (client_socket == NULL) {
         printf("Failed to open socket: %s\n", SDLNet_GetError());
         return 1;
     }
 
     IPaddress server_address;
-    if (SDLNet_ResolveHost(&server_address, SERVER_IP, SERVER_PORT) == -1)
-    {
+    if (SDLNet_ResolveHost(&server_address, SERVER_IP, SERVER_PORT) == -1) {
         printf("Failed to resolve server address: %s\n", SDLNet_GetError());
         return 1;
     }
@@ -91,110 +87,106 @@ int main(int argv, char **args)
 
     printf("Request Send\n");
 
-    while (!quit)
-    {
+    while (!quit) {
         // Receive updates from other players
-        while (SDLNet_UDP_Recv(client_socket, recieve))
-        {
+        while (SDLNet_UDP_Recv(client_socket, recieve)) {
             printf("UDP Packet from server\n");
             printf("\tData:    %s\n", (char *)recieve->data);
             printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
 
             int x, y, id;
             int x2, y2, id2;
-            if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d", &x, &y, &id) == 3 && number_of_player < MAX_PLAYERS)
-            {
+            if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d", &x, &y, &id) == 3 && number_of_player < MAX_PLAYERS) {
                 printf("Joined server!\n");
                 Player player = {id, {x, y, 50, 50}};
                 players[number_of_player] = player;
                 me = player;
                 number_of_player++;
                 joinedServer = true;
-            }
-            else if (sscanf((char *)recieve->data, "player_data %d %d %d", &x2, &y2, &id2) == 3)
-            {
+            } else if (sscanf((char *)recieve->data, "player_data %d %d %d", &x2, &y2, &id2) == 3) {
                 printf("data from other players\n");
                 int index = -1;
 
-                if (number_of_player < MAX_PLAYERS)
-                {
+                if (number_of_player < MAX_PLAYERS) {
                     bool found = false;
-                    for (int i = 0; i < number_of_player; i++)
-                    {
-                        if (players[i].id == id2)
-                        {
+                    for (int i = 0; i < number_of_player; i++) {
+                        if (players[i].id == id2) {
                             found = true;
                             index = i;
                             break;
                         }
                     }
-                    if (!found)
-                    {
+                    if (!found) {
                         Player player = {id2, {x2, y2, 50, 50}};
                         players[number_of_player] = player;
                         number_of_player++;
                         printf("Added player with ID %d\n", id2);
-                    }
-                    else
-                    {
+                    } else {
                         players[index].rect.x = x2;
                         players[index].rect.y = y2;
                         printf("Player Already exist\n");
                     }
                 }
-            }
-            else
-            {
+            } else {
                 printf("Unknown message received: %s\n", (char *)packet->data);
             }
         }
 
         // Get player input
         SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
                 quit = true;
-            }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                case SDLK_UP:
-                    me.rect.y -= 5;
-                    break;
-                case SDLK_DOWN:
-                    me.rect.y += 5;
-                    break;
-                case SDLK_LEFT:
-                    me.rect.x -= 5;
-                    break;
-                case SDLK_RIGHT:
-                    me.rect.x += 5;
-                    break;
+            } else if (event.type == SDL_KEYDOWN) {
+                switch (event.key.keysym.sym) {
+                    case SDLK_UP:
+                        if (me.rect.y - PLAYER_MOVE_SPEED >= 0) {
+                            me.rect.y -= PLAYER_MOVE_SPEED;
+                        } else {
+                            me.rect.y = 0;
+                        }
+                        break;
+                    case SDLK_DOWN:
+                        if (me.rect.y + PLAYER_MOVE_SPEED <= WINDOW_HEIGHT - (PLAYER_HIGHT) / 2) {
+                            me.rect.y += PLAYER_MOVE_SPEED;
+                        } else {
+                            me.rect.y = WINDOW_HEIGHT - (PLAYER_HIGHT / 2);
+                        }
+                        break;
+                    case SDLK_LEFT:
+                        if (me.rect.x - PLAYER_MOVE_SPEED >= 0) {
+                            me.rect.x -= PLAYER_MOVE_SPEED;
+                        } else {
+                            me.rect.x = 0;
+                        }
+                        break;
+                    case SDLK_RIGHT:
+                        if (me.rect.x + PLAYER_MOVE_SPEED <= WINDOW_WIDTH - (PLAYER_WIDTH / 2)) {
+                            me.rect.x += PLAYER_MOVE_SPEED;
+                        } else {
+                            me.rect.x = WINDOW_WIDTH - (PLAYER_WIDTH / 2);
+                        }
+                        break;
                 }
             }
         }
-        if (joinedServer)
-        {
+        if (joinedServer) {
             // Send player position update to server
             sprintf((char *)packet->data, "%d %d %d", me.rect.x, me.rect.y, me.id);
             packet->len = strlen((char *)packet->data) + 1;
             SDLNet_UDP_Send(client_socket, -1, packet);
 
-            printf("Sending data\n");
-            printf("MY ID: %d\n", me.id);
+            // printf("Sending data\n");        // Commented out during testing
+            // printf("MY ID: %d\n", me.id);    // Commented out during testing
 
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRenderer);
 
             // Render all players
-            for (int i = 0; i < number_of_player; i++)
-            {
+            for (int i = 0; i < number_of_player; i++) {
                 SDL_Rect rect = players[i].rect;
                 SDL_RenderCopy(pRenderer, pTexture, NULL, &rect);
-                printf("Draw Players\n");
+                // printf("Draw Players\n"); // Commented out during testing
             }
 
             // Render my player
