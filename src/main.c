@@ -87,8 +87,8 @@ int main(int argv, char **args)
 
     SDL_Rect characterRect;
     SDL_QueryTexture(tCharacter, NULL, NULL, &characterRect.w, &characterRect.h);
-    characterRect.w /= 4;
-    characterRect.h /= 4;
+    characterRect.w *= 1.5;
+    characterRect.h *= 1.5;
     float characterX = (WINDOW_WIDTH - characterRect.w) / 2;  // left side
     float characterY = (WINDOW_HEIGHT - characterRect.h) / 2; // upper side
     float characterVelocityX = 0;                        // unit: pixels/s
