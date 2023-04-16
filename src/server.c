@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
             sscanf((char *)recieve->data, "%d %d %d", &dx, &dy, &player_id);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS) {
-                Player player = {number_of_players, {100, 100, 50, 50}, recieve->address};
+                Player player = {number_of_players, {0, 0, PLAYER_WIDTH, PLAYER_HIGHT}, recieve->address};
                 players[number_of_players] = player;
                 number_of_players++;
                 // printf("Player joined with ID %d\n", player.id);
@@ -110,9 +110,9 @@ int main(int argc, char **argv) {
 bool collisionDetection(int dx, int dy) {
     int collison = 0;
     collison += collisionWithMap(dx, dy);
-    collison += collisionWithMap(dx + PLAYER_WIDTH, dy);
-    collison += collisionWithMap(dx, dy + PLAYER_HIGHT);
-    collison += collisionWithMap(dx + PLAYER_WIDTH, dy + PLAYER_HIGHT);
+    collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy);
+    collison += collisionWithMap(dx, dy + (PLAYER_HIGHT - 1));
+    collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy + (PLAYER_HIGHT - 1));
     return collison > 0;
 }
 bool collisionWithMap(int dx, int dy) {
@@ -122,9 +122,9 @@ bool collisionWithMap(int dx, int dy) {
     int row = getRow(dy);
     printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
 
-    if (getTileGrid(collumn, row) == 7) {
-        printf("%d %d\n", dx, dy);  // TEST
-        return false;
+    if (getTileGrid(row, collumn) != 7) {
+        // printf("%d %d\n", dx, dy);  // TEST
+        return true;
     }
-    return true;
+    return false;
 }

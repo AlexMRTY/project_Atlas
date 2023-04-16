@@ -10,7 +10,7 @@
 #define SPEED 200  // 100
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 1024
-#define PLAYER_MOVE_SPEED 5
+#define PLAYER_MOVE_SPEED 32
 #define PLAYER_HIGHT 32
 #define PLAYER_WIDTH 32
 
@@ -109,7 +109,7 @@ int main(int argv, char **args) {
             int x2, y2, id2;
             if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d", &x, &y, &id) == 3 && number_of_player < MAX_PLAYERS) {
                 printf("Joined server!\n");
-                Player player = {id, {x, y, 50, 50}};
+                Player player = {id, {x, y, PLAYER_WIDTH, PLAYER_HIGHT}};
                 players[number_of_player] = player;
                 me = player;
                 number_of_player++;
@@ -128,7 +128,7 @@ int main(int argv, char **args) {
                         }
                     }
                     if (!found) {
-                        Player player = {id2, {x2, y2, 50, 50}};
+                        Player player = {id2, {x2, y2, PLAYER_WIDTH, PLAYER_HIGHT}};
                         players[number_of_player] = player;
                         number_of_player++;
                         printf("Added player with ID %d\n", id2);
@@ -158,10 +158,10 @@ int main(int argv, char **args) {
                         }
                         break;
                     case SDLK_DOWN:
-                        if (me.rect.y + PLAYER_MOVE_SPEED <= WINDOW_HEIGHT - (PLAYER_HIGHT) / 2) {
+                        if (me.rect.y + PLAYER_MOVE_SPEED <= WINDOW_HEIGHT - PLAYER_HIGHT) {
                             me.rect.y += PLAYER_MOVE_SPEED;
                         } else {
-                            me.rect.y = WINDOW_HEIGHT - (PLAYER_HIGHT / 2);
+                            me.rect.y = WINDOW_HEIGHT - PLAYER_HIGHT;
                         }
                         break;
                     case SDLK_LEFT:
@@ -172,10 +172,10 @@ int main(int argv, char **args) {
                         }
                         break;
                     case SDLK_RIGHT:
-                        if (me.rect.x + PLAYER_MOVE_SPEED <= WINDOW_WIDTH - (PLAYER_WIDTH / 2)) {
+                        if (me.rect.x + PLAYER_MOVE_SPEED <= WINDOW_WIDTH - PLAYER_WIDTH) {
                             me.rect.x += PLAYER_MOVE_SPEED;
                         } else {
-                            me.rect.x = WINDOW_WIDTH - (PLAYER_WIDTH / 2);
+                            me.rect.x = WINDOW_WIDTH - PLAYER_WIDTH;
                         }
                         break;
                 }
