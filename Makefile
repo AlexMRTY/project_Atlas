@@ -5,7 +5,7 @@ ifeq ($(OS),Windows_NT)
     # Windows-specific libraries
 	INCLUDE = -L/opt/homebrew/lib/
     LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
-    RM = del /Q
+    RM = rm
 else
     # Mac-specific libraries
     INCLUDE = -I/usr/local/include
@@ -19,11 +19,14 @@ CFLAGS = -g -c $(INCLUDE)
 
 all: main server
 
-main: main.o
-	$(CC) main.o -o main $(LDFLAGS) $(LIBS)
+main: main.o world.o
+	$(CC) main.o world.o -o main $(LDFLAGS) $(LIBS)
 
 main.o: $(SRCDIR)$(DIR_SEP)main.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)main.c -o main.o
+
+world.o: $(SRCDIR)$(DIR_SEP)world.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)world.c
 
 server: server.o
 	$(CC) server.o -o server $(LDFLAGS) $(LIBS)
