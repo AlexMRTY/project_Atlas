@@ -11,8 +11,8 @@
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 1024
 #define PLAYER_MOVE_SPEED 5
-#define PLAYER_HIGHT 100
-#define PLAYER_WIDTH 100
+#define PLAYER_HIGHT 32
+#define PLAYER_WIDTH 32
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 12345
@@ -20,7 +20,6 @@
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
-
 
 int main(int argv, char **args) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -60,7 +59,6 @@ int main(int argv, char **args) {
         SDL_Quit();
         return 1;
     }
-
 
     // Background
     SDL_Texture *tTiles = NULL;
@@ -222,11 +220,9 @@ int main(int argv, char **args) {
     return 0;
 }
 
-void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]) 
-{
-    SDL_Surface* gTilesSurface = IMG_Load("resources/tilemap.png");
-    if (!gTilesSurface)
-    {
+void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]) {
+    SDL_Surface *gTilesSurface = IMG_Load("resources/tilemap.png");
+    if (!gTilesSurface) {
         printf("Error: %s\n", SDL_GetError());
         SDL_DestroyRenderer(gRenderer);
         // SDL_DestroyWindow(Window);
@@ -234,26 +230,25 @@ void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])
     }
     *mTiles = SDL_CreateTextureFromSurface(gRenderer, gTilesSurface);
     for (int i = 0; i < 8; i++) {
-        gTiles[i].x = i*getTileWidth();
+        gTiles[i].x = i * getTileWidth();
         gTiles[i].y = 0;
         gTiles[i].w = getTileWidth();
         gTiles[i].h = getTileHeight();
     }
 }
 
-void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[])
-{
+void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]) {
     SDL_Rect position;
     position.y = 0;
     position.x = 0;
     position.h = getTileHeight();
     position.w = getTileWidth();
-    
-    for (int i = 0; i<getTileColumns(); i++) {
-        for (int j = 0; j<getTileRows(); j++) {
-            position.y = i*getTileHeight();
-            position.x = j*getTileWidth();
-            SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i, j)],&position , 0, NULL, SDL_FLIP_NONE);
+
+    for (int i = 0; i < getTileColumns(); i++) {
+        for (int j = 0; j < getTileRows(); j++) {
+            position.y = i * getTileHeight();
+            position.x = j * getTileWidth();
+            SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i, j)], &position, 0, NULL, SDL_FLIP_NONE);
         }
     }
 }
