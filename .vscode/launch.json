@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/nancyibrahim/Desktop/Datateknik/Projektkurs1/projekt2023/project_Atlas",
-      "program": "/Users/nancyibrahim/Desktop/Datateknik/Projektkurs1/projekt2023/project_Atlas/build/Debug/outDebug"
+      "cwd": "/Users/nancyibrahim/Desktop/Datateknik/Projektkurs1/projekt2023/project_Atlas2",
+      "program": "/Users/nancyibrahim/Desktop/Datateknik/Projektkurs1/projekt2023/project_Atlas2/build/Debug/outDebug"
     }
   ]
 }
