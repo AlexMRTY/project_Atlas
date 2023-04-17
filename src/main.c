@@ -66,7 +66,7 @@ int main(int argv, char **args)
         return 1;
     }
 
-    const int NUM_SUBTEXTURES = 4;
+    const int NUM_SUBTEXTURES = 5;
     const int TEXTURE_WIDTH = 128;
     const int TEXTURE_HEIGHT = 128;
     const int SUBTEXTURE_WIDTH = 32;
@@ -284,18 +284,17 @@ int main(int argv, char **args)
             SDL_RenderPresent(pRenderer);
         }
     }
-}
 
-SDL_DestroyTexture(pTexture);
-SDL_DestroyRenderer(pRenderer);
-SDL_DestroyWindow(pWindow);
+    SDL_DestroyTexture(pTexture);
+    SDL_DestroyRenderer(pRenderer);
+    SDL_DestroyWindow(pWindow);
 
-SDLNet_FreePacket(packet);
-SDLNet_UDP_Close(client_socket);
-SDLNet_Quit();
-SDL_Quit();
+    SDLNet_FreePacket(packet);
+    SDLNet_UDP_Close(client_socket);
+    SDLNet_Quit();
+    SDL_Quit();
 
-return 0;
+    return 0;
 }
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])
