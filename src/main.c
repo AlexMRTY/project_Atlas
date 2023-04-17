@@ -20,6 +20,7 @@
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
+void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture *pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me);
 
 int main(int argv, char **args)
 {
@@ -46,7 +47,7 @@ int main(int argv, char **args)
     }
 
     // Character
-    SDL_Surface *pSurface = IMG_Load("resources/ship.png");
+    SDL_Surface *pSurface = IMG_Load("resources/ninja_f.png");
     if (!pSurface)
     {
         printf("Error: %s\n", SDL_GetError());
@@ -66,7 +67,7 @@ int main(int argv, char **args)
         return 1;
     }
 
-    const int NUM_SUBTEXTURES = 5;
+    const int NUM_SUBTEXTURES = 4;
     const int TEXTURE_WIDTH = 128;
     const int TEXTURE_HEIGHT = 128;
     const int SUBTEXTURE_WIDTH = 32;
@@ -254,34 +255,7 @@ int main(int argv, char **args)
             SDL_RenderClear(pRenderer);
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
-
-            SDL_Rect currentSubtexture = subtextures[0]; // default subtexture
-            // Render all players
-            for (int i = 0; i < number_of_player; i++)
-            {
-                SDL_Rect rect = players[i].rect;
-                SDL_RenderCopy(pRenderer, pTexture, NULL, &rect);
-                // printf("Draw Players\n"); // Commented out during testing
-            }
-
-            if (me.movement == 1)
-            {
-                currentSubtexture = subtextures[0];
-            }
-            else if (me.movement == 3)
-            {
-                currentSubtexture = subtextures[3];
-            }
-            else if (me.movement == 2)
-            {
-                currentSubtexture = subtextures[2];
-            }
-            else if (me.movement == 4)
-            {
-                currentSubtexture = subtextures[1];
-            }
-            SDL_RenderCopy(pRenderer, pTexture, &currentSubtexture, &me.rect);
-            SDL_RenderPresent(pRenderer);
+            renderPlayers(pRenderer, pTexture, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
         }
     }
 
@@ -295,6 +269,47 @@ int main(int argv, char **args)
     SDL_Quit();
 
     return 0;
+}
+
+void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture *pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me)
+{
+    // Change current subtexture based on player movement
+    SDL_Rect currentSubtexture;
+    if (me.movement == 1)
+    {
+        currentSubtexture = subtextures[0];
+    }
+    else if (me.movement == 3)
+    {
+        currentSubtexture = subtextures[1];
+        SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL;
+        SDL_RenderCopyEx(pRenderer, pTexture, &currentSubtexture, &me.rect, 0, NULL, flip);
+        SDL_RenderPresent(pRenderer);
+        return;
+    }
+    else if (me.movement == 2)
+    {
+        currentSubtexture = subtextures[2];
+    }
+    else if (me.movement == 4)
+    {
+        currentSubtexture = subtextures[1];
+    }
+
+    // Render current player with correct subtexture
+    SDL_RenderCopyEx(pRenderer, pTexture, &currentSubtexture, &me.rect, 0, NULL, SDL_FLIP_NONE);
+
+    // Render all other players
+    for (int i = 0; i < num_players; i++)
+    {
+        if (players[i].id != me.id)
+        {
+            SDL_Rect rect = players[i].rect;
+            SDL_RenderCopy(pRenderer, pTexture, NULL, &rect);
+        }
+    }
+
+    SDL_RenderPresent(pRenderer);
 }
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])
