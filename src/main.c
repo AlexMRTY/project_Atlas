@@ -20,6 +20,8 @@
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
+bool collisionDetection(int dx, int dy);
+bool collisionWithMap(int dx, int dy);
 
 int main(int argv, char **args) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -151,32 +153,53 @@ int main(int argv, char **args) {
             } else if (event.type == SDL_KEYDOWN) {
                 switch (event.key.keysym.sym) {
                     case SDLK_UP:
+                        if (!collisionDetection(me.rect.x, me.rect.y - PLAYER_MOVE_SPEED)) {
+                            me.rect.y -= PLAYER_MOVE_SPEED;
+                        }
+                        /*
                         if (me.rect.y - PLAYER_MOVE_SPEED >= 0) {
                             me.rect.y -= PLAYER_MOVE_SPEED;
                         } else {
                             me.rect.y = 0;
                         }
+                        */
                         break;
                     case SDLK_DOWN:
+                        if (!collisionDetection(me.rect.x, me.rect.y + PLAYER_MOVE_SPEED)) {
+                            me.rect.y += PLAYER_MOVE_SPEED;
+                        }
+                        /*
                         if (me.rect.y + PLAYER_MOVE_SPEED <= WINDOW_HEIGHT - PLAYER_HIGHT) {
                             me.rect.y += PLAYER_MOVE_SPEED;
                         } else {
                             me.rect.y = WINDOW_HEIGHT - PLAYER_HIGHT;
                         }
+                        */
+
                         break;
                     case SDLK_LEFT:
+                        if (!collisionDetection(me.rect.x - PLAYER_MOVE_SPEED, me.rect.y)) {
+                            me.rect.x -= PLAYER_MOVE_SPEED;
+                        }
+                        /*
                         if (me.rect.x - PLAYER_MOVE_SPEED >= 0) {
                             me.rect.x -= PLAYER_MOVE_SPEED;
                         } else {
                             me.rect.x = 0;
                         }
+                        */
                         break;
                     case SDLK_RIGHT:
+                        if (!collisionDetection(me.rect.x + PLAYER_MOVE_SPEED, me.rect.y)) {
+                            me.rect.x += PLAYER_MOVE_SPEED;
+                        }
+                        /*
                         if (me.rect.x + PLAYER_MOVE_SPEED <= WINDOW_WIDTH - PLAYER_WIDTH) {
                             me.rect.x += PLAYER_MOVE_SPEED;
                         } else {
                             me.rect.x = WINDOW_WIDTH - PLAYER_WIDTH;
                         }
+                        */
                         break;
                 }
             }
@@ -251,4 +274,25 @@ void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]) 
             SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i, j)], &position, 0, NULL, SDL_FLIP_NONE);
         }
     }
+}
+bool collisionDetection(int dx, int dy) {
+    int collison = 0;
+    collison += collisionWithMap(dx, dy);
+    collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy);
+    collison += collisionWithMap(dx, dy + (PLAYER_HIGHT - 1));
+    collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy + (PLAYER_HIGHT - 1));
+    return collison > 0;
+}
+bool collisionWithMap(int dx, int dy) {
+    // check the corners (all 4)
+    // För långt till vänster och ner.
+    int collumn = getCol(dx);
+    int row = getRow(dy);
+    printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
+
+    if (getTileGrid(row, collumn) != 7) {
+        // printf("%d %d\n", dx, dy);  // TEST
+        return true;
+    }
+    return false;
 }

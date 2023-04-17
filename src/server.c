@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
     Player players[MAX_PLAYERS];
     int number_of_players = 0;
 
-    while (1) {
+    while (1) {  // make it terminate on a exit command of sorts or SDL event.
         // Receive player updates and join requests
         while (SDLNet_UDP_Recv(server_socket, recieve)) {
             // printf("UDP Packet incoming\n");
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
             sscanf((char *)recieve->data, "%d %d %d", &dx, &dy, &player_id);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS) {
-                Player player = {number_of_players, {0, 0, PLAYER_WIDTH, PLAYER_HIGHT}, recieve->address};
+                Player player = {number_of_players, {32, 32, PLAYER_WIDTH, PLAYER_HIGHT}, recieve->address};
                 players[number_of_players] = player;
                 number_of_players++;
                 // printf("Player joined with ID %d\n", player.id);
@@ -66,15 +66,18 @@ int main(int argc, char **argv) {
             for (int i = 0; i < number_of_players; i++) {
                 if (players[i].id == player_id) {
                     // Update existing player's position
-                    if (collisionDetection(players[i].rect.x, players[i].rect.y)) {
+                    // collison detection will be moved to server side or be run on both.
+                    if (collisionDetection(dx, dy)) {
                         printf("**************************Krock!\n");
                     } else {
                         printf("Ingen krock!\n");
+                        players[i].rect.x = dx;
+                        players[i].rect.y = dy;
                     }
 
-                    players[i].rect.x = dx;
-                    players[i].rect.y = dy;
-                    // printf("Update\n");
+                    // players[i].rect.x = dx;
+                    // players[i].rect.y = dy;
+                    //  printf("Update\n");
                     break;
                 }
             }
