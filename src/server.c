@@ -6,15 +6,18 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
+#include "const.h"
 #include "player.h"
 #include "world.h"
 
+/*
 #define SERVER_PORT 12345
 #define MAX_PLAYERS 4
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 1024
 #define PLAYER_HIGHT 32
 #define PLAYER_WIDTH 32
+*/
 
 bool collisionDetection(int dx, int dy);
 bool collisionWithMap(int dx, int dy);

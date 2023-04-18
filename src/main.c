@@ -4,19 +4,20 @@
 #include <stdio.h>
 
 #include "SDL2/SDL_net.h"
+#include "const.h"
 #include "player.h"
 #include "world.h"
 
 #define SPEED 200  // 100
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 1024
-#define PLAYER_MOVE_SPEED 32
-#define PLAYER_HIGHT 32
-#define PLAYER_WIDTH 32
+// #define WINDOW_WIDTH 1024
+// #define WINDOW_HEIGHT 1024
+//  #define PLAYER_MOVE_SPEED 32
+//  #define PLAYER_HIGHT 32
+//  #define PLAYER_WIDTH 32
 
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 12345
-#define MAX_PLAYERS 4
+//  #define SERVER_IP "127.0.0.1"
+//  #define SERVER_PORT 12345
+//  #define MAX_PLAYERS 4
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
