@@ -4,25 +4,15 @@
 #include <stdio.h>
 
 #include "SDL2/SDL_net.h"
+#include "collisionDetection.h"
 #include "const.h"
 #include "player.h"
 #include "world.h"
 
 #define SPEED 200  // 100
-// #define WINDOW_WIDTH 1024
-// #define WINDOW_HEIGHT 1024
-//  #define PLAYER_MOVE_SPEED 32
-//  #define PLAYER_HIGHT 32
-//  #define PLAYER_WIDTH 32
-
-//  #define SERVER_IP "127.0.0.1"
-//  #define SERVER_PORT 12345
-//  #define MAX_PLAYERS 4
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
-bool collisionDetection(int dx, int dy);
-bool collisionWithMap(int dx, int dy);
 
 int main(int argv, char **args) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -275,25 +265,4 @@ void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]) 
             SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i, j)], &position, 0, NULL, SDL_FLIP_NONE);
         }
     }
-}
-bool collisionDetection(int dx, int dy) {
-    int collison = 0;
-    collison += collisionWithMap(dx, dy);
-    collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy);
-    collison += collisionWithMap(dx, dy + (PLAYER_HIGHT - 1));
-    collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy + (PLAYER_HIGHT - 1));
-    return collison > 0;
-}
-bool collisionWithMap(int dx, int dy) {
-    // check the corners (all 4)
-    // För långt till vänster och ner.
-    int collumn = getCol(dx);
-    int row = getRow(dy);
-    printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
-
-    if (getTileGrid(row, collumn) != 7) {
-        // printf("%d %d\n", dx, dy);  // TEST
-        return true;
-    }
-    return false;
 }
