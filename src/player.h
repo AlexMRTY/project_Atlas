@@ -8,11 +8,10 @@ typedef struct
 {
     int id;
     SDL_Rect rect;
-    IPaddress address;
-    bool isAlive;
     int numberOfPoints;
-    char pngName[50];
     int movement;
+    IPaddress address;
+    int isAlive;
 } Player;
 
 void initializePlayer();
