@@ -243,7 +243,7 @@ int main(int argv, char **args)
         if (joinedServer)
         {
             // Send player position update to server
-            sprintf((char *)packet->data, "%d %d %d %d", me.rect.x, me.rect.y, me.id, me.movement);
+            sprintf((char *)packet->data, "%d %d %d %d %d", me.rect.x, me.rect.y, me.id, me.numberOfPoints, me.movement);
             packet->len = strlen((char *)packet->data) + 1;
             SDLNet_UDP_Send(client_socket, -1, packet);
 
