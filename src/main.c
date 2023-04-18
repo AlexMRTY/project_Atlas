@@ -20,10 +20,16 @@
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
-void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture *pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me);
+void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTextures, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me);
 
 int main(int argv, char **args)
 {
+
+    const char *pngNames[4] = {"resources/healer_f.png",
+                               "resources/mage_f.png",
+                               "resources/mage_m.png",
+                               "resources/ninja_f.png"};
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         printf("Error: %s\n", SDL_GetError());
@@ -46,27 +52,6 @@ int main(int argv, char **args)
         return 1;
     }
 
-    // Character
-    SDL_Surface *pSurface = IMG_Load("resources/ninja_f.png");
-    if (!pSurface)
-    {
-        printf("Error: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(pRenderer);
-        SDL_DestroyWindow(pWindow);
-        SDL_Quit();
-        return 1;
-    }
-    SDL_Texture *pTexture = SDL_CreateTextureFromSurface(pRenderer, pSurface);
-    SDL_FreeSurface(pSurface);
-    if (!pTexture)
-    {
-        printf("Error: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(pRenderer);
-        SDL_DestroyWindow(pWindow);
-        SDL_Quit();
-        return 1;
-    }
-
     const int NUM_SUBTEXTURES = 4;
     const int TEXTURE_WIDTH = 128;
     const int TEXTURE_HEIGHT = 128;
@@ -83,6 +68,18 @@ int main(int argv, char **args)
         SDL_Rect subtextureRect = {SUBTEXTURE_X_OFFSETS[i], SUBTEXTURE_Y_OFFSETS[i], SUBTEXTURE_WIDTH, SUBTEXTURE_HEIGHT};
         subtextures[i] = subtextureRect;
     }
+
+    // players Textures and Imgaes
+    SDL_Surface *pSurface_one = IMG_Load(pngNames[0]);
+    SDL_Surface *pSurface_two = IMG_Load(pngNames[1]);
+    SDL_Surface *pSurface_three = IMG_Load(pngNames[2]);
+    SDL_Surface *pSurface_four = IMG_Load(pngNames[4]);
+
+    SDL_Texture *client_textures[4];
+    client_textures[0] = SDL_CreateTextureFromSurface(pRenderer, pSurface_one);
+    client_textures[1] = SDL_CreateTextureFromSurface(pRenderer, pSurface_two);
+    client_textures[2] = SDL_CreateTextureFromSurface(pRenderer, pSurface_three);
+    client_textures[3] = SDL_CreateTextureFromSurface(pRenderer, pSurface_four);
 
     // Background
     SDL_Texture *tTiles = NULL;
@@ -133,18 +130,18 @@ int main(int argv, char **args)
             printf("\tData:    %s\n", (char *)recieve->data);
             printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
 
-            int x, y, id;
-            int x2, y2, id2;
-            if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d", &x, &y, &id) == 3 && number_of_player < MAX_PLAYERS)
+            int x, y, id, nrOfpoints, movement;
+            int x2, y2, id2, nrOfpoints_2, movement_2;
+            if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d %d %d", &x, &y, &id, &nrOfpoints, &movement) == 5 && number_of_player <= MAX_PLAYERS)
             {
                 printf("Joined server!\n");
-                Player player = {id, {x, y, PLAYER_WIDTH, PLAYER_HIGHT}};
+                Player player = {id, {x, y, PLAYER_WIDTH, PLAYER_HIGHT}, nrOfpoints, movement};
                 players[number_of_player] = player;
                 me = player;
                 number_of_player++;
                 joinedServer = true;
             }
-            else if (sscanf((char *)recieve->data, "player_data %d %d %d", &x2, &y2, &id2) == 3)
+            else if (sscanf((char *)recieve->data, "player_data %d %d %d %d %d", &x2, &y2, &id2, &nrOfpoints_2, &movement_2) == 5)
             {
                 printf("data from other players\n");
                 int index = -1;
@@ -163,7 +160,7 @@ int main(int argv, char **args)
                     }
                     if (!found)
                     {
-                        Player player = {id2, {x2, y2, PLAYER_WIDTH, PLAYER_HIGHT}};
+                        Player player = {id2, {x2, y2, PLAYER_WIDTH, PLAYER_HIGHT}, nrOfpoints_2, movement_2};
                         players[number_of_player] = player;
                         number_of_player++;
                         printf("Added player with ID %d\n", id2);
@@ -172,6 +169,8 @@ int main(int argv, char **args)
                     {
                         players[index].rect.x = x2;
                         players[index].rect.y = y2;
+                        players[index].movement = movement_2;
+                        players[index].numberOfPoints = nrOfpoints_2;
                         printf("Player Already exist\n");
                     }
                 }
@@ -244,7 +243,7 @@ int main(int argv, char **args)
         if (joinedServer)
         {
             // Send player position update to server
-            sprintf((char *)packet->data, "%d %d %d", me.rect.x, me.rect.y, me.id);
+            sprintf((char *)packet->data, "%d %d %d %d", me.rect.x, me.rect.y, me.id, me.movement);
             packet->len = strlen((char *)packet->data) + 1;
             SDLNet_UDP_Send(client_socket, -1, packet);
 
@@ -255,11 +254,11 @@ int main(int argv, char **args)
             SDL_RenderClear(pRenderer);
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
-            renderPlayers(pRenderer, pTexture, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
+            renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
         }
     }
 
-    SDL_DestroyTexture(pTexture);
+    //   SDL_DestroyTexture(pTexture);
     SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
 
@@ -271,7 +270,7 @@ int main(int argv, char **args)
     return 0;
 }
 
-void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture *pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me)
+void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me)
 {
     // Change current subtexture based on player movement
     SDL_Rect currentSubtexture;
@@ -282,8 +281,9 @@ void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture *pTexture, SDL_Rect *sub
     else if (me.movement == 3)
     {
         currentSubtexture = subtextures[1];
+        SDL_Texture *playerTexture = pTexture[me.id];
         SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL;
-        SDL_RenderCopyEx(pRenderer, pTexture, &currentSubtexture, &me.rect, 0, NULL, flip);
+        SDL_RenderCopyEx(pRenderer, playerTexture, &currentSubtexture, &me.rect, 0, NULL, flip);
         SDL_RenderPresent(pRenderer);
         return;
     }
@@ -297,15 +297,39 @@ void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture *pTexture, SDL_Rect *sub
     }
 
     // Render current player with correct subtexture
-    SDL_RenderCopyEx(pRenderer, pTexture, &currentSubtexture, &me.rect, 0, NULL, SDL_FLIP_NONE);
+    SDL_Texture *playerTexture = pTexture[me.id];
+    SDL_RenderCopyEx(pRenderer, playerTexture, &currentSubtexture, &me.rect, 0, NULL, SDL_FLIP_NONE);
 
     // Render all other players
     for (int i = 0; i < num_players; i++)
     {
         if (players[i].id != me.id)
         {
-            SDL_Rect rect = players[i].rect;
-            SDL_RenderCopy(pRenderer, pTexture, NULL, &rect);
+            if (players[i].movement == 1)
+            {
+                currentSubtexture = subtextures[0];
+            }
+            else if (players[i].movement == 3)
+            {
+                currentSubtexture = subtextures[1];
+                SDL_Texture *playerTexture = pTexture[players[i].id];
+                SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL;
+                SDL_RenderCopyEx(pRenderer, playerTexture, &currentSubtexture, &players[i].rect, 0, NULL, flip);
+                SDL_RenderPresent(pRenderer);
+                return;
+            }
+            else if (players[i].movement == 2)
+            {
+                currentSubtexture = subtextures[2];
+            }
+            else if (players[i].movement == 4)
+            {
+                currentSubtexture = subtextures[1];
+            }
+
+            // Render current player with correct subtexture
+            SDL_Texture *playerTexture = pTexture[players[i].id];
+            SDL_RenderCopyEx(pRenderer, playerTexture, &currentSubtexture, &players[i].rect, 0, NULL, SDL_FLIP_NONE);
         }
     }
 
