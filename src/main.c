@@ -284,8 +284,6 @@ void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTexture, SDL_Rect *su
         SDL_Texture *playerTexture = pTexture[me.id];
         SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL;
         SDL_RenderCopyEx(pRenderer, playerTexture, &currentSubtexture, &me.rect, 0, NULL, flip);
-        SDL_RenderPresent(pRenderer);
-        return;
     }
     else if (me.movement == 2)
     {
@@ -315,8 +313,6 @@ void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTexture, SDL_Rect *su
                 SDL_Texture *playerTexture = pTexture[players[i].id];
                 SDL_RendererFlip flip = SDL_FLIP_HORIZONTAL;
                 SDL_RenderCopyEx(pRenderer, playerTexture, &currentSubtexture, &players[i].rect, 0, NULL, flip);
-                SDL_RenderPresent(pRenderer);
-                return;
             }
             else if (players[i].movement == 2)
             {
