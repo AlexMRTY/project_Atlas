@@ -46,6 +46,12 @@ static int tileGrid[32][32] = {
     {6,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,5}
 };
     
+int getCol(int x) {
+    return x / 32;
+}
+int getRow(int y) {
+    return y / 32;
+}
 
 int getTileRows(){
     return TILE_ROWS;

@@ -5,12 +5,13 @@
 
 #include "world.h"
 
-#define SPEED 200 // 100
+#define SPEED 100 // 100
 #define WINDOW_WIDTH 1024
 #define WINDOW_HEIGHT 1024
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
+int collisionWithMap(int dx, int dy);
 
 
 int main(int argv, char **args)
@@ -98,6 +99,7 @@ int main(int argv, char **args)
     bool up, down, left, right;
     up = down = left = right = false;
 
+    // printf("First checkpoint\n");
     while (!closeWindow)
     {
 
@@ -154,28 +156,33 @@ int main(int argv, char **args)
             }
         }
 
+        // printf("Second Checkpoint\n");
         characterVelocityX = characterVelocityY = 0;
-        if (up && !down)
-            characterVelocityY = -SPEED;
-        if (down && !up)
-            characterVelocityY = SPEED;
-        if (left && !right)
-            characterVelocityX = -SPEED;
-        if (right && !left)
-            characterVelocityX = SPEED;
-        characterX += characterVelocityX / 60; // 60 frames/s
-        characterY += characterVelocityY / 60;
-        if (characterX < 0)
-            characterX = 0;
-        if (characterY < 0)
-            characterY = 0;
-        if (characterX > WINDOW_WIDTH - characterRect.w)
-            characterX = WINDOW_WIDTH - characterRect.w;
-        if (characterY > WINDOW_HEIGHT - characterRect.h)
-            characterY = WINDOW_HEIGHT - characterRect.h;
+
+        if (!collisionWithMap(characterX, characterY)) {
+            if (up && !down)
+                characterVelocityY = -SPEED;
+            if (down && !up)
+                characterVelocityY = SPEED;
+            if (left && !right)
+                characterVelocityX = -SPEED;
+            if (right && !left)
+                characterVelocityX = SPEED;
+            characterX += characterVelocityX / 60; // 60 frames/s
+            characterY += characterVelocityY / 60;
+            if (characterX < 0)
+                characterX = 0;
+            if (characterY < 0)
+                characterY = 0;
+            if (characterX > WINDOW_WIDTH - characterRect.w)
+                characterX = WINDOW_WIDTH - characterRect.w;
+            if (characterY > WINDOW_HEIGHT - characterRect.h)
+                characterY = WINDOW_HEIGHT - characterRect.h;
+        }
         characterRect.x = characterX;
         characterRect.y = characterY;
 
+        printf("Third Checkpoint\n");
         SDL_RenderClear(pRenderer);
         renderMap(pRenderer, tTiles, gTiles);
         SDL_RenderCopy(pRenderer, tCharacter, NULL, &characterRect);
@@ -223,4 +230,22 @@ void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]){
             SDL_RenderCopyEx(gRenderer, mTiles, &gTiles[getTileGrid(i, j)],&position , 0, NULL, SDL_FLIP_NONE);
         }
     }
+}
+
+int collisionWithMap(int dx, int dy)
+{
+    // check the corners (all 4)
+    // För långt till vänster och ner.
+
+    // printf("Function run!\n");
+    int collumn = getCol(dx);
+    int row = getRow(dy);
+    printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
+
+    if (getTileGrid(row, collumn) != 7)
+    {
+        // printf("%d %d\n", dx, dy);  // TEST
+        return 1;
+    }
+    return 0;
 }

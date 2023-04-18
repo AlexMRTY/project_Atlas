@@ -2,6 +2,8 @@
 #define world_h
 #include <stdio.h>
 
+int getCol(int x);
+int getRow(int y);
 int getTileRows();
 int getTileColumns();
 int getTileWidth();
