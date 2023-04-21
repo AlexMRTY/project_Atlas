@@ -10,5 +10,7 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 12345
 #define MAX_PLAYERS 4
+#define START_POS_X 32
+#define START_POS_Y 32
 
 #endif

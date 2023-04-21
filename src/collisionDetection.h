@@ -8,5 +8,6 @@
 
 bool collisionDetection(int dx, int dy);
 bool collisionWithMap(int dx, int dy);
-
+// collisionWithPlayer();
+// outOfBoundsDetection();
 #endif

@@ -11,6 +11,8 @@
 #include "player.h"
 #include "world.h"
 
+int collisionWithPlayer(Player players[], int nrOfP, int currentP);
+
 int main(int argc, char **argv) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("Error: %s\n", SDL_GetError());
@@ -41,7 +43,7 @@ int main(int argc, char **argv) {
             sscanf((char *)recieve->data, "%d %d %d", &dx, &dy, &player_id);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS) {
-                Player player = {number_of_players, {32, 32, PLAYER_WIDTH, PLAYER_HIGHT}, recieve->address};
+                Player player = {number_of_players, {START_POS_X, START_POS_Y, PLAYER_WIDTH, PLAYER_HIGHT}, recieve->address};
                 players[number_of_players] = player;
                 number_of_players++;
                 // printf("Player joined with ID %d\n", player.id);
@@ -59,6 +61,8 @@ int main(int argc, char **argv) {
                 if (players[i].id == player_id) {
                     // Update existing player's position
                     // collison detection will be moved to server side or be run on both.
+
+                    /*
                     if (collisionDetection(dx, dy)) {
                         printf("**************************Krock!\n");
                     } else {
@@ -66,12 +70,17 @@ int main(int argc, char **argv) {
                         players[i].rect.x = dx;
                         players[i].rect.y = dy;
                     }
-
-                    // players[i].rect.x = dx;
-                    // players[i].rect.y = dy;
+                    */
+                    players[i].rect.x = dx;
+                    players[i].rect.y = dy;
                     //  printf("Update\n");
+
                     break;
                 }
+            }
+            // func for detection collision between players. (let the changes in pos go through first)
+            for (int i = 0; i < number_of_players; i++) {
+                printf("xxxxxx COLLISION BETWEEN PLAYERS!! xxxxxx pNr: %d and pNr: %d\n", i, collisionWithPlayer(players, number_of_players, i));
             }
 
             // Send player updates to all clients
@@ -101,4 +110,13 @@ int main(int argc, char **argv) {
     SDL_Quit();
 
     return 0;
+}
+int collisionWithPlayer(Player players[], int nrOfP, int currentP) {
+    for (int i = 0; i < nrOfP; i++) {
+        if (i != currentP) {
+            if (players[i].rect.x == players[currentP].rect.x && players[i].rect.y == players[currentP].rect.y) {
+                return i;
+            }
+        }
+    }
 }
