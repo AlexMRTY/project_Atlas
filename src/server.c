@@ -53,9 +53,9 @@ int main(int argc, char **argv)
             int dx, dy, player_id, movement, nrOfPoints;
             sscanf((char *)recieve->data, "%d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement);
 
-            if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players <= MAX_PLAYERS)
+            if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
             {
-                Player player = {number_of_players, {50, 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 0, recieve->address};
+                Player player = {number_of_players, {50, 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 1, recieve->address};
                 players[number_of_players] = player;
                 number_of_players++;
                 printf("Player joined with ID %d\n", player.id);
@@ -74,14 +74,14 @@ int main(int argc, char **argv)
                 if (players[i].id == player_id)
                 {
                     // Update existing player's position
-                    if (collisionDetection(players[i].rect.x, players[i].rect.y))
-                    {
-                        printf("**************************Krock!\n");
-                    }
-                    else
-                    {
-                        printf("Ingen krock!\n");
-                    }
+                    // if (collisionDetection(players[i].rect.x, players[i].rect.y))
+                    // {
+                    //     printf("**************************Krock!\n");
+                    // }
+                    // else
+                    // {
+                    //     printf("Ingen krock!\n");
+                    // }
 
                     players[i].rect.x = dx;
                     players[i].rect.y = dy;
