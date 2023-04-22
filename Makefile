@@ -19,8 +19,8 @@ CFLAGS = -g -c $(INCLUDE)
 
 all: main server
 
-main: main.o world.o collisionDetection.o events.o
-	$(CC) main.o world.o collisionDetection.o events.o -o main $(LDFLAGS) $(LIBS)
+main: main.o world.o collisionDetection.o events.o render.o client.o
+	$(CC) main.o world.o collisionDetection.o events.o render.o client.o -o main $(LDFLAGS) $(LIBS)
 
 main.o: $(SRCDIR)$(DIR_SEP)main.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)main.c -o main.o
@@ -39,6 +39,12 @@ collisionDetection.o: $(SRCDIR)$(DIR_SEP)collisionDetection.c
 
 events.o: $(SRCDIR)$(DIR_SEP)events.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)events.c
+
+render.o: $(SRCDIR)$(DIR_SEP)render.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)render.c
+
+client.o: $(SRCDIR)$(DIR_SEP)client.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)client.c
 
 
 clean:
