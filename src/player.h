@@ -1,5 +1,4 @@
 #ifndef PLAYER_H
-#define PLAYER_H
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_net.h"
 #include <stdbool.h>

@@ -4,25 +4,28 @@
 #include <stdio.h>
 
 #include "SDL2/SDL_net.h"
+#include "globalConst.h"
 #include "player.h"
 #include "world.h"
+#include "events.h"
+// #include "collisionDetection.h"
 
-#define SPEED 200 // 100
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 1024
-#define PLAYER_MOVE_SPEED 32
-#define PLAYER_HIGHT 32
-#define PLAYER_WIDTH 32
+// #define SPEED 200 // 100
+// #define WINDOW_WIDTH 1024
+// #define WINDOW_HEIGHT 1024
+// #define PLAYER_MOVE_SPEED 32
+// #define PLAYER_HIGHT 32
+// #define PLAYER_WIDTH 32
 
-#define NUM_SUBTEXTURES 4
-#define TEXTURE_WIDTH 128
-#define TEXTURE_HEIGHT 128
-#define SUBTEXTURE_WIDTH 32
-#define SUBTEXTURE_HEIGHT 32
+// #define NUM_SUBTEXTURES 4
+// #define TEXTURE_WIDTH 128
+// #define TEXTURE_HEIGHT 128
+// #define SUBTEXTURE_WIDTH 32
+// #define SUBTEXTURE_HEIGHT 32
 
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 12345
-#define MAX_PLAYERS 4
+// #define SERVER_IP "127.0.0.1"
+// #define SERVER_PORT 12345
+// #define MAX_PLAYERS 4
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
@@ -134,7 +137,7 @@ int main(int argv, char **args)
         {
             printf("UDP Packet from server\n");
             printf("\tData:    %s\n", (char *)recieve->data);
-            printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
+            printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port); 
 
             int x, y, id, nrOfpoints, movement;
             int x2, y2, id2, nrOfpoints_2, movement_2;
@@ -187,65 +190,8 @@ int main(int argv, char **args)
             }
         }
 
-        // Get player input
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                quit = true;
-            }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
-                {
-                case SDLK_UP:
-                    if (me.rect.y - PLAYER_MOVE_SPEED >= 0)
-                    {
-                        me.rect.y -= PLAYER_MOVE_SPEED;
-                    }
-                    else
-                    {
-                        me.rect.y = 0;
-                    }
-                    me.movement = 1;
-                    break;
-                case SDLK_DOWN:
-                    if (me.rect.y + PLAYER_MOVE_SPEED <= WINDOW_HEIGHT - PLAYER_HIGHT)
-                    {
-                        me.rect.y += PLAYER_MOVE_SPEED;
-                    }
-                    else
-                    {
-                        me.rect.y = WINDOW_HEIGHT - PLAYER_HIGHT;
-                    }
-                    me.movement = 2;
-                    break;
-                case SDLK_LEFT:
-                    if (me.rect.x - PLAYER_MOVE_SPEED >= 0)
-                    {
-                        me.rect.x -= PLAYER_MOVE_SPEED;
-                    }
-                    else
-                    {
-                        me.rect.x = 0;
-                    }
-                    me.movement = 3;
-                    break;
-                case SDLK_RIGHT:
-                    if (me.rect.x + PLAYER_MOVE_SPEED <= WINDOW_WIDTH - PLAYER_WIDTH)
-                    {
-                        me.rect.x += PLAYER_MOVE_SPEED;
-                    }
-                    else
-                    {
-                        me.rect.x = WINDOW_WIDTH - PLAYER_WIDTH;
-                    }
-                    me.movement = 4;
-                    break;
-                }
-            }
-        }
+        handleEvents(&me.rect, &me.movement, &quit);    // Handles quit and movement events
+     
         if (joinedServer)
         {
             // Send player position update to server
@@ -267,7 +213,6 @@ int main(int argv, char **args)
     //   SDL_DestroyTexture(pTexture);
     SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
-
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(client_socket);
     SDLNet_Quit();
