@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/nancyibrahim/Desktop/Datateknik/Projektkurs1/projekt2023/project_Atlas2",
+      "program": "/Users/nancyibrahim/Desktop/Datateknik/Projektkurs1/projekt2023/project_Atlas2/build/Debug/outDebug"
+    }
+  ]
+}

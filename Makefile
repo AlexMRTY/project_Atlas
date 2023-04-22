@@ -1,17 +1,38 @@
-# Makefile for Windows
-SRCDIR=./source
+SRCDIR=./src
+DIR_SEP=/
+
+ifeq ($(OS),Windows_NT)
+    # Windows-specific libraries
+	INCLUDE = -L/opt/homebrew/lib/
+    LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
+    RM = rm
+else
+    # Mac-specific libraries
+    INCLUDE = -I/usr/local/include
+    LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main
+    LDFLAGS = -Wl,-rpath,/usr/local/lib
+    RM = rm -f
+endif
+
 CC=gcc
-INCLUDE = C:\msys64\mingw64\include\SDL2
+CFLAGS = -g -c $(INCLUDE)
 
-CFLAGS = -g -I$(INCLUDE) -c 
-LDFLAGS = -lmingw32 -lSDL2main -lSDL2_image -lSDL2 -mwindows -lm
+all: main server
 
-simpleSDLexample1: main.o
-	$(CC) main.o -o simpleSDLexample1 $(LDFLAGS)
+main: main.o world.o
+	$(CC) main.o world.o -o main $(LDFLAGS) $(LIBS)
 
-main.o: $(SRCDIR)/main.c
-	$(CC) $(CFLAGS) $(SRCDIR)/main.c
+main.o: $(SRCDIR)$(DIR_SEP)main.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)main.c -o main.o
+
+world.o: $(SRCDIR)$(DIR_SEP)world.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)world.c
+
+server: server.o world.o
+	$(CC) server.o world.o -o server $(LDFLAGS) $(LIBS)
+
+server.o: $(SRCDIR)$(DIR_SEP)server.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)server.c -o server.o
 
 clean:
-	rm *.exe
-	rm *.o
+	$(RM) *.o main server
