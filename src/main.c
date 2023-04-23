@@ -1,3 +1,4 @@
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdbool.h>
@@ -5,7 +6,7 @@
 
 #include "SDL2/SDL_net.h"
 #include "globalConst.h"
-#include "player.h"
+// #include "player.h"
 #include "world.h"
 #include "events.h"
 #include "render.h"
@@ -14,7 +15,7 @@
 
 // #define SPEED 200 // 100
 // #define WINDOW_WIDTH 1024
-// #define WINDOW_HEIGHT 1024
+// #define WINDOW_HEIGHT 1025
 // #define PLAYER_MOVE_SPEED 32
 // #define PLAYER_HIGHT 32
 // #define PLAYER_WIDTH 32
@@ -29,9 +30,9 @@
 // #define SERVER_PORT 12345
 // #define MAX_PLAYERS 4
 
-void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
-void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
-void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTextures, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me);
+// void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
+// void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
+// void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTextures, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me);
 
 int main(int argv, char **args)
 {

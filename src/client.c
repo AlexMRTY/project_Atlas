@@ -1,5 +1,5 @@
 #include "client.h"
-
+#include "player.h"
 void transmitData(Player *me, UDPpacket *packet, UDPsocket *client_socket) 
 {
     // Send player position update to server
