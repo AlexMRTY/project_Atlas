@@ -4,7 +4,7 @@
 #include "SDL2/SDL_net.h"
 #include <stdbool.h>
 
-typedef struct
+typedef struct Player
 {
     int id;
     SDL_Rect rect;
@@ -14,9 +14,8 @@ typedef struct
     int isAlive;
 } Player;
 
-void initializePlayer();
-bool isGameRunnin();
-struct Player *getPlayer();
-void movePlayer(int playerid, int x, int y);
-void updateAllPlayers();
+Player initializePlayer(int *number_of_player, Player players[], UDPpacket *recieve);
+void addToTheList(int id, int x, int y, int movement, int nrOfPoints, int *number_of_player, Player players[]);
+void updatePlayer(int x, int y, int movement, int numberOfPoints, Player players[], int i);
+void movePlayer(Player *playerr, int x, int y, int movement, int numberOfPoints);
 #endif
