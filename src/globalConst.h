@@ -1,3 +1,6 @@
+#ifndef GLOBALCONST_H
+#define GLOBALCONST_H
+
 #define PLAYER_HIGHT 32
 #define PLAYER_WIDTH 32
 #define PLAYER_MOVE_SPEED 10
@@ -14,3 +17,7 @@
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 12345
+
+
+
+#endif

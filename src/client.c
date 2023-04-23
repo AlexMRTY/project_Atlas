@@ -3,11 +3,6 @@
 #include "globalConst.h"
 
 
-
-
-
-
-
 int joinAccept(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement)
 {
     return sscanf((char *)recieve->data, "join_accept %d %d %d %d %d", x, y, id, nrOfPoints, movement);
@@ -18,16 +13,6 @@ int recievePlayerData(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoin
     return sscanf((char *)recieve->data, "player_data %d %d %d %d %d", x, y, id, nrOfPoints, movement);
 }
 
-Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player players[], int *number_of_player)
-{
-    Player player = {*id, {*x, *y, PLAYER_WIDTH, PLAYER_HIGHT}, *nrOfPoints, *movement};
-    players[*number_of_player] = player;
-    (*number_of_player)++;
-
-    // printf("I am run\n");
-    return player;
-}
-
 void printPlayerData(UDPpacket *recieve)
 {
      // Print data on console
@@ -35,29 +20,6 @@ void printPlayerData(UDPpacket *recieve)
     printf("\tData:    %s\n", (char *)recieve->data);
     printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
 }
-
-int playerExists(int *nrOfPlayers, Player players[], int *index, int lookUpId)
-{
-    for (int i = 0; i < *nrOfPlayers; i++)
-    {
-        if (players[i].id == lookUpId)
-        {
-            *index = i;
-            return 1;
-        }
-    }
-    return 0;
-}
-
-// maybe put in player.c
-void updatePlayerPos(Player players[],int index, int xCord, int yCord, int movemnt, int nrOfPoints)
-{
-    players[index].rect.x = xCord;
-    players[index].rect.y = yCord;
-    players[index].movement = movemnt;
-    players[index].numberOfPoints = nrOfPoints;
-}
-
 
 void transmitData(Player *me, UDPpacket *packet, UDPsocket *client_socket) 
 {

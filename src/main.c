@@ -13,17 +13,10 @@
 
 int main(int argv, char **args)
 {
-
     const char *pngNames[4] = {"resources/healer_f.png",
-                               "resources/mage_f.png",
-                               "resources/mage_m.png",
-                               "resources/ninja_f.png"};
-
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        printf("Error: %s\n", SDL_GetError());
-        return 1;
-    }
+                                "resources/mage_f.png",
+                                "resources/mage_m.png",
+                                "resources/ninja_f.png"};
 
     SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     if (!pWindow)
@@ -32,6 +25,7 @@ int main(int argv, char **args)
         SDL_Quit();
         return 1;
     }
+
     SDL_Renderer *pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!pRenderer)
     {
@@ -40,6 +34,7 @@ int main(int argv, char **args)
         SDL_Quit();
         return 1;
     }
+    
 
     SDL_Rect subtextures[NUM_SUBTEXTURES];
 
