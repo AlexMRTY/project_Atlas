@@ -6,33 +6,10 @@
 
 #include "SDL2/SDL_net.h"
 #include "globalConst.h"
-// #include "player.h"
 #include "world.h"
 #include "events.h"
 #include "render.h"
 #include "client.h"
-// #include "collisionDetection.h"
-
-// #define SPEED 200 // 100
-// #define WINDOW_WIDTH 1024
-// #define WINDOW_HEIGHT 1025
-// #define PLAYER_MOVE_SPEED 32
-// #define PLAYER_HIGHT 32
-// #define PLAYER_WIDTH 32
-
-// #define NUM_SUBTEXTURES 4
-// #define TEXTURE_WIDTH 128
-// #define TEXTURE_HEIGHT 128
-// #define SUBTEXTURE_WIDTH 32
-// #define SUBTEXTURE_HEIGHT 32
-
-// #define SERVER_IP "127.0.0.1"
-// #define SERVER_PORT 12345
-// #define MAX_PLAYERS 4
-
-// void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[]);
-// void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[]);
-// void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTextures, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me);
 
 int main(int argv, char **args)
 {
@@ -63,12 +40,6 @@ int main(int argv, char **args)
         SDL_Quit();
         return 1;
     }
-
-    // const int NUM_SUBTEXTURES = 4;
-    // const int TEXTURE_WIDTH = 128;
-    // const int TEXTURE_HEIGHT = 128;
-    // const int SUBTEXTURE_WIDTH = 32;
-    // const int SUBTEXTURE_HEIGHT = 32;
 
     SDL_Rect subtextures[NUM_SUBTEXTURES];
 
@@ -123,7 +94,7 @@ int main(int argv, char **args)
     int number_of_player = 0;
     Player players[MAX_PLAYERS];
     Player me;
-    bool joinedServer = false;
+    
     bool quit = false;
 
     // Send request
@@ -131,86 +102,146 @@ int main(int argv, char **args)
     packet->len = strlen((char *)packet->data) + 1;
     SDLNet_UDP_Send(client_socket, -1, packet);
 
+    bool joinedServer = false;
+
     printf("Request Send\n");
 
     while (!quit)
     {
+        HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
+
         // Receive updates from other players
-        while (SDLNet_UDP_Recv(client_socket, recieve))
-        {
-            printf("UDP Packet from server\n");
-            printf("\tData:    %s\n", (char *)recieve->data);
-            printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port); 
+        // while (SDLNet_UDP_Recv(client_socket, recieve))
+        // {
+        //     // Prints the recieved player data to terminal.
+        //     printPlayerData(recieve); 
 
-            int x, y, id, nrOfpoints, movement;
-            int x2, y2, id2, nrOfpoints_2, movement_2;
-            if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d %d %d", &x, &y, &id, &nrOfpoints, &movement) == 5 && number_of_player <= MAX_PLAYERS)
-            {
-                printf("Joined server!\n");
-                Player player = {id, {x, y, PLAYER_WIDTH, PLAYER_HIGHT}, nrOfpoints, movement};
-                players[number_of_player] = player;
-                me = player;
-                number_of_player++;
-                joinedServer = true;
-            }
-            else if (sscanf((char *)recieve->data, "player_data %d %d %d %d %d", &x2, &y2, &id2, &nrOfpoints_2, &movement_2) == 5)
-            {
-                printf("data from other players\n");
-                int index = -1;
+        //     int x, y, id, nrOfPoints, movement;
+        //     int x2, y2, id2, nrOfpoints_2, movement_2;
+            
+        //     if (!*(&joinedServer) && 
+        //     joinAccept(recieve, &x, &y, &id, &nrOfPoints, &movement) == 5 && 
+        //     *(&number_of_player) <= MAX_PLAYERS)
+        //     {
+        //         printf("Joined server!\n");
+        //         *(&me) = addPlayer(&id, &x, &y, &nrOfPoints, &movement, players, &number_of_player);
+        //         *(&joinedServer) = true;
 
-                if (number_of_player <= MAX_PLAYERS)
-                {
-                    bool found = false;
-                    for (int i = 0; i < number_of_player; i++)
-                    {
-                        if (players[i].id == id2)
-                        {
-                            found = true;
-                            index = i;
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        Player player = {id2, {x2, y2, PLAYER_WIDTH, PLAYER_HIGHT}, nrOfpoints_2, movement_2};
-                        players[number_of_player] = player;
-                        number_of_player++;
-                        printf("Added player with ID %d\n", id2);
-                    }
-                    else
-                    {
-                        players[index].rect.x = x2;
-                        players[index].rect.y = y2;
-                        players[index].movement = movement_2;
-                        players[index].numberOfPoints = nrOfpoints_2;
-                        printf("Player Already exist\n");
-                    }
-                }
-            }
-            else
-            {
-                printf("Unknown message received: %s\n", (char *)packet->data);
-            }
-        }
+        //     }
+        //     else if (recievePlayerData(recieve, &x2, &y2, &id2, &nrOfpoints_2, &movement_2) == 5)
+        //     {
+        //         printf("data from other players\n");
+        //         int index = -1;
 
-        handleEvents(&me.rect, &me.movement, &quit);    // Handles quit and movement events
+        //         if (number_of_player <= MAX_PLAYERS)
+        //         {
+        //             // Look if player already exists
+        //             int found = playerExists(&number_of_player, players, &index, id2);
+
+        //             // If player does not exist, add new player.
+        //             if (!found)
+        //             {
+        //                 addPlayer(&id2, &x2, &y2, &nrOfpoints_2, &movement_2, players, &number_of_player);
+        //                 printf("Added player with ID %d\n", id2);
+        //             } else {
+        //                 updatePlayerPos(players, index, x2, y2, movement_2, nrOfpoints_2);
+                
+        //             }
+        //         }
+        //     }
+        //     else
+        //     {
+        //         printf("Unknown message received: %s\n", (char *)packet->data);
+        //     }
+        // }
+
+
+
+
+
+
+
+
+
+        // Receive updates from other players
+        // while (SDLNet_UDP_Recv(client_socket, recieve))
+        // {
+        //     printf("UDP Packet from server\n");
+        //     printf("\tData:    %s\n", (char *)recieve->data);
+        //     printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port); 
+
+        //     int x, y, id, nrOfpoints, movement;
+        //     int x2, y2, id2, nrOfpoints_2, movement_2;
+        //     if (!joinedServer && sscanf((char *)recieve->data, "join_accept %d %d %d %d %d", &x, &y, &id, &nrOfpoints, &movement) == 5 && number_of_player <= MAX_PLAYERS)
+        //     {
+        //         printf("Joined server!\n");
+        //         Player player = {id, {x, y, PLAYER_WIDTH, PLAYER_HIGHT}, nrOfpoints, movement};
+        //         players[number_of_player] = player;
+        //         me = player;
+        //         number_of_player++;
+        //         joinedServer = true;
+        //     }
+        //     else if (sscanf((char *)recieve->data, "player_data %d %d %d %d %d", &x2, &y2, &id2, &nrOfpoints_2, &movement_2) == 5)
+        //     {
+        //         printf("data from other players\n");
+        //         int index = -1;
+
+        //         if (number_of_player <= MAX_PLAYERS)
+        //         {
+        //             bool found = false;
+        //             for (int i = 0; i < number_of_player; i++)
+        //             {
+        //                 if (players[i].id == id2)
+        //                 {
+        //                     found = true;
+        //                     index = i;
+        //                     break;
+        //                 }
+        //             }
+        //             if (!found)
+        //             {
+        //                 Player player = {id2, {x2, y2, PLAYER_WIDTH, PLAYER_HIGHT}, nrOfpoints_2, movement_2};
+        //                 players[number_of_player] = player;
+        //                 number_of_player++;
+        //                 printf("Added player with ID %d\n", id2);
+        //             }
+        //             else
+        //             {
+        //                 players[index].rect.x = x2;
+        //                 players[index].rect.y = y2;
+        //                 players[index].movement = movement_2;
+        //                 players[index].numberOfPoints = nrOfpoints_2;
+        //                 printf("Player Already exist\n");
+        //             }
+        //         }
+        //     }
+        //     else
+        //     {
+        //         printf("Unknown message received: %s\n", (char *)packet->data);
+        //     }
+        // }
+
+        // Handles quit and movement events
+        handleEvents(&me.rect, &me.movement, &quit);    
      
         if (joinedServer)
         {
             // Transmit my data to others
             transmitData(&me, packet, &client_socket);
 
-
+            // Clear Window
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRenderer);
             
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
+
+            // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
         }
     }
 
-    //   SDL_DestroyTexture(pTexture);
+    //   Close SDL
     SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
     SDLNet_FreePacket(packet);

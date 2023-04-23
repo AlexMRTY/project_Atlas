@@ -11,6 +11,7 @@ int collisionWithWall(int dx, int dy)
     //  3******4
     int collison = 0;
     
+    printf(" X:%d Y:%d \n", dx, dy);
     collison += collision(dx, dy);                                // 1
     collison += collision(dx + PLAYER_WIDTH, dy);                 // 2
     collison += collision(dx, dy + PLAYER_HIGHT);                 // 3
@@ -22,7 +23,7 @@ bool collision(int dx, int dy)
 {
     int collumn = getCol(dx);
     int row = getRow(dy);
-    printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
+    // printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
 
     // if (getTileGrid(row, collumn) != 7)
     // {

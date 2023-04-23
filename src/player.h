@@ -14,6 +14,8 @@ typedef struct
     int isAlive;
 } Player;
 
+
+// remove maybe
 void initializePlayer();
 bool isGameRunnin();
 struct Player *getPlayer();
