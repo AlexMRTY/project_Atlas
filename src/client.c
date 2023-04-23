@@ -83,28 +83,35 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
         if (!(*joinedServer) && 
             joinAccept(recieve, &x, &y, &id, &nrOfPoints, &movement) == 5 && 
             *number_of_player <= MAX_PLAYERS)
-        {
+        { 
             printf("Joined server!\n");
             *me = addPlayer(&id, &x, &y, &nrOfPoints, &movement, players, number_of_player);
             *joinedServer = true;
 
         }
+        // If joined read player data.
         else if (recievePlayerData(recieve, &x2, &y2, &id2, &nrOfPoints_2, &movement_2) == 5)
         {
             int index = -1;
             if (*number_of_player <= MAX_PLAYERS)
             {
+                // Look if the player already exists.
                 int found = playerExists(number_of_player, players, &index, id2);
                 
+                // If not, add player
                 if (!found)
                 {
                     addPlayer(&id2, &x2, &y2, &nrOfPoints_2, &movement_2, players, number_of_player);
                     printf("Added player with ID %d\n", id2);
-                } else{
+                } 
+                // Else Update the player position on Window.
+                else
+                {
                     updatePlayerPos(players, index, x2, y2, movement_2, nrOfPoints_2);
                 }
             }
         }
+        // In case the recieved packet is not from our server. 
         else
         {
             printf("Unknown message received: %s\n", (char *)packet->data);
