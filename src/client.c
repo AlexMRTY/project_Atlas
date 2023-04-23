@@ -1,108 +1,82 @@
-#include <stdio.h>
-#include <stdbool.h>
-
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_net.h"
-
+#include "client.h"
 #include "player.h"
+#include "globalConst.h"
 
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 2000
 
-int main(int argc, char **argv)
+int joinAccept(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement)
 {
-    SDL_Init(SDL_INIT_VIDEO);
-    SDLNet_Init();
+    return sscanf((char *)recieve->data, "join_accept %d %d %d %d %d", x, y, id, nrOfPoints, movement);
+}
 
-    UDPsocket client_socket = SDLNet_UDP_Open(0);
-    if (client_socket == NULL)
+int recievePlayerData(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement)
+{
+    return sscanf((char *)recieve->data, "player_data %d %d %d %d %d", x, y, id, nrOfPoints, movement);
+}
+
+void printPlayerData(UDPpacket *recieve)
+{
+     // Print data on console
+    printf("UDP Packet from server\n");
+    printf("\tData:    %s\n", (char *)recieve->data);
+    printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
+}
+
+void transmitData(Player *me, UDPpacket *packet, UDPsocket *client_socket) 
+{
+    // Send player position update to server
+    sprintf((char *)packet->data, "%d %d %d %d %d", me->rect.x, me->rect.y, me->id, me->numberOfPoints, me->movement);
+    packet->len = strlen((char *)packet->data) + 1;
+    SDLNet_UDP_Send(*client_socket, -1, packet);
+}
+
+void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer)
+{
+    // *joinedServer = false;
+    while (SDLNet_UDP_Recv(*client_socket, recieve))
     {
-        printf("Failed to open socket: %s\n", SDLNet_GetError());
-        return 1;
-    }
+        // Prints the recieved player data to terminal.
+        printPlayerData(recieve);
 
-    IPaddress server_address;
-    if (SDLNet_ResolveHost(&server_address, SERVER_IP, SERVER_PORT) == -1)
-    {
-        printf("Failed to resolve server address: %s\n", SDLNet_GetError());
-        return 1;
-    }
+        // Temp
+        int x, y, id, nrOfPoints, movement;
+        int x2, y2, id2, nrOfPoints_2, movement_2;
 
-    UDPpacket *packet = SDLNet_AllocPacket(512);
-    packet->address.host = server_address.host;
-    packet->address.port = server_address.port;
+        // If not joined yet, join. And read data.
+        if (!(*joinedServer) && 
+            joinAccept(recieve, &x, &y, &id, &nrOfPoints, &movement) == 5 && 
+            *number_of_player <= MAX_PLAYERS)
+        { 
+            printf("Joined server!\n");
+            *me = addPlayer(&id, &x, &y, &nrOfPoints, &movement, players, number_of_player);
+            *joinedServer = true;
 
-    Player player = {0, {100, 100, 50, 50}}; // Create new player at (100, 100)
-
-    while (1)
-    {
-        // Get player input
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
+        }
+        // If joined read player data.
+        else if (recievePlayerData(recieve, &x2, &y2, &id2, &nrOfPoints_2, &movement_2) == 5)
         {
-            if (event.type == SDL_QUIT)
+            int index = -1;
+            if (*number_of_player <= MAX_PLAYERS)
             {
-                goto quit;
-            }
-            else if (event.type == SDL_KEYDOWN)
-            {
-                switch (event.key.keysym.sym)
+                // Look if the player already exists.
+                int found = playerExists(number_of_player, players, &index, id2);
+                
+                // If not, add player
+                if (!found)
                 {
-                case SDLK_UP:
-                    player.rect.y -= 5;
-                    break;
-                case SDLK_DOWN:
-                    player.rect.y += 5;
-                    break;
-                case SDLK_LEFT:
-                    player.rect.x -= 5;
-                    break;
-                case SDLK_RIGHT:
-                    player.rect.x += 5;
-                    break;
+                    addPlayer(&id2, &x2, &y2, &nrOfPoints_2, &movement_2, players, number_of_player);
+                    printf("Added player with ID %d\n", id2);
+                } 
+                // Else Update the player position on Window.
+                else
+                {
+                    updatePlayerPos(players, index, x2, y2, movement_2, nrOfPoints_2);
                 }
             }
         }
-
-        // Send player position update to server
-        sprintf((char *)packet->data, "%d %d %d", player.rect.x, player.rect.y, player.id);
-        packet->len = strlen((char *)packet->data) + 1;
-        SDLNet_UDP_Send(client_socket, -1, packet);
-
-        // Receive updates from other players
-        while (SDLNet_UDP_Recv(client_socket, packet))
+        // In case the recieved packet is not from our server. 
+        else
         {
-            printf("UDP Packet incoming\n");
-            printf("\tData:    %s\n", (char *)packet->data);
-            printf("\tAddress: %x %x\n", packet->address.host, packet->address.port);
-
-            int dx, dy, player_id;
-            sscanf((char *)packet->data, "%d %d %d", &dx, &dy, &player_id);
-
-            if (player_id != player.id)
-            {
-                // Update other player's position
-                player.rect.x = dx;
-                player.rect.y = dy;
-            }
+            printf("Unknown message received: %s\n", (char *)packet->data);
         }
-
-        // Clear screen
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        // Render players
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &player.rect);
-
-        SDL_RenderPresent(renderer);
     }
-
-quit:
-    SDLNet_FreePacket(packet);
-    SDLNet_UDP_Close(client_socket);
-    SDLNet_Quit();
-    SDL_Quit();
-
-    return 0;
 }
