@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
     int number_of_players = 0;
 
     while (1) {
+        unsigned long long int perfStart = SDL_GetPerformanceCounter();  // ULL to handle large numbers.
         // Receive player updates and join requests
         while (SDLNet_UDP_Recv(server_socket, recieve)) {
             // printf("UDP Packet incoming\n");
@@ -93,6 +94,9 @@ int main(int argc, char **argv) {
                 SDLNet_FreePacket(update_packet);
             }
         }
+        unsigned long long int perfEnd = SDL_GetPerformanceCounter();
+        float nrOfMS = (perfEnd - perfStart) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+        SDL_Delay(floor(16.666 - nrOfMS));  // 16.666ms for 60 fps
     }
 
     SDLNet_FreePacket(packet);

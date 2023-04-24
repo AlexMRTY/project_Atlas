@@ -96,7 +96,6 @@ int main(int argv, char **args) {
     printf("Request Send\n");
 
     while (!quit) {
-        unsigned long long int perfStart = SDL_GetPerformanceCounter();  // ULL to handle large numbers.
         // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
@@ -117,9 +116,6 @@ int main(int argv, char **args) {
             // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
         }
-        unsigned long long int perfEnd = SDL_GetPerformanceCounter();
-        float nrOfMS = (perfEnd - perfStart) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
-        SDL_Delay(floor(16.666 - nrOfMS));  // 16.666ms for 60 fps
     }
     //   Close SDL
     SDL_DestroyRenderer(pRenderer);
