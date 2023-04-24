@@ -6,6 +6,7 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
+#include "collisionDetection.h"
 #include "globalConst.h"
 #include "player.h"
 #include "world.h"
@@ -64,6 +65,14 @@ int main(int argc, char **argv) {
                     break;
                 }
             }
+            int c = 0;
+            for (int i = 0; i < number_of_players; i++) {
+                c = 0;
+                c = collisionWithPlayer(players, i, number_of_players);
+                if (c != -1) {
+                    printf("Collision between player nr: %d and player nr: %d!\n", i, c);
+                }
+            }
 
             // Send player updates to all clients
             for (int i = 0; i < number_of_players; i++) {
@@ -77,7 +86,7 @@ int main(int argc, char **argv) {
                         update_packet->len = strlen((char *)update_packet->data) + 1;
 
                         SDLNet_UDP_Send(server_socket, -1, update_packet);
-                        printf("Sending data to player %d\n", players[i].id);
+                        // printf("Sending data to player %d\n", players[i].id);
                     }
                 }
 

@@ -28,8 +28,8 @@ main.o: $(SRCDIR)$(DIR_SEP)main.c
 world.o: $(SRCDIR)$(DIR_SEP)world.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)world.c
 
-server: server.o world.o
-	$(CC) server.o world.o -o server $(LDFLAGS) $(LIBS)
+server: server.o world.o collisionDetection.o
+	$(CC) server.o world.o collisionDetection.o -o server $(LDFLAGS) $(LIBS)
 
 server.o: $(SRCDIR)$(DIR_SEP)server.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)server.c -o server.o

@@ -1,9 +1,5 @@
 #include "collisionDetection.h"
 
-#include "globalConst.h"
-#include "player.h"
-#include "world.h"
-
 int collisionWithWall(int dx, int dy) {
     // check the corners (all 4)
     //  1******2
