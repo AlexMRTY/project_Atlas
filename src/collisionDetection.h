@@ -4,4 +4,5 @@
 
 int collisionWithWall(int dx, int dy);
 bool collision(int dx, int dy);
+int collisionWithPlayer(Player players[], int currentPlayer, int nrOfPlayers);  // returns the player's nr in the array or -1 if no collision.
 #endif

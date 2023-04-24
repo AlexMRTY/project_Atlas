@@ -15,7 +15,8 @@
 #define SUBTEXTURE_WIDTH 32
 #define SUBTEXTURE_HEIGHT 32
 
-#define SERVER_IP "188.150.211.45"
+#define SERVER_IP "127.0.0.1"
+// #define SERVER_IP "188.150.211.45"
 #define SERVER_PORT 12345
 
 #endif

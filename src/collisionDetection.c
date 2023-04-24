@@ -31,7 +31,7 @@ bool collision(int dx, int dy) {
     // }
     return getTileGrid(row, collumn) != 7 ? true : false;
 }
-int collisionWithPlayer(Player players[], int currentPlayer, int nrOfPlayers) {  // returns the player's nr in the array or -1 if no collision.
+int collisionWithPlayer(Player players[], int currentPlayer, int nrOfPlayers) {
     for (int i = 0; i < nrOfPlayers; i++) {
         if (i != currentPlayer) {
             if (players[i].rect.x == players[currentPlayer].rect.x && players[i].rect.y == players[currentPlayer].rect.y) {
