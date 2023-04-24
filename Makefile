@@ -4,12 +4,12 @@ DIR_SEP=/
 ifeq ($(OS),Windows_NT)
     # Windows-specific libraries
 	INCLUDE = -L/opt/homebrew/lib/
-    LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net
+    LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_mixer
     RM = rm
 else
     # Mac-specific libraries
     INCLUDE = -I/usr/local/include
-    LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main
+    LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main -lSDL2_mixer
     LDFLAGS = -Wl,-rpath,/usr/local/lib
     RM = rm -f
 endif
@@ -29,7 +29,7 @@ world.o: $(SRCDIR)$(DIR_SEP)world.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)world.c
 
 server: server.o world.o
-	$(CC) server.o world.o -o server $(LDFLAGS) $(LIBS)
+	$(CC) server.o world.o player.o -o server $(LDFLAGS) $(LIBS)
 
 server.o: $(SRCDIR)$(DIR_SEP)server.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)server.c -o server.o

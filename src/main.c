@@ -1,10 +1,12 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include "SDL2/SDL_net.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "SDL2/SDL_net.h"
 #include "globalConst.h"
 #include "world.h"
 #include "events.h"
@@ -14,9 +16,9 @@
 int main(int argv, char **args)
 {
     const char *pngNames[4] = {"resources/healer_f.png",
-                                "resources/mage_f.png",
-                                "resources/mage_m.png",
-                                "resources/ninja_f.png"};
+                               "resources/mage_f.png",
+                               "resources/mage_m.png",
+                               "resources/ninja_f.png"};
 
     SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     if (!pWindow)
@@ -34,7 +36,24 @@ int main(int argv, char **args)
         SDL_Quit();
         return 1;
     }
-    
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+    {
+        printf("SDL2_mixer could not initialize! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
+
+    Mix_Chunk *music = Mix_LoadWAV("resources/sfx_step_rock_l.mp3");
+    if (music == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
+
+    Mix_Music *gameMusic = Mix_LoadMUS("resources/Spazzmatica-Polka.mp3");
+    if (gameMusic == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
 
     SDL_Rect subtextures[NUM_SUBTEXTURES];
 
@@ -89,7 +108,7 @@ int main(int argv, char **args)
     int number_of_player = 0;
     Player players[MAX_PLAYERS];
     Player me;
-    
+
     bool quit = false;
 
     // Send request
@@ -101,14 +120,16 @@ int main(int argv, char **args)
 
     printf("Request Send\n");
 
+    Mix_PlayMusic(gameMusic, -1);
+
     while (!quit)
     {
         // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
         // Handles quit and movement events
-        handleEvents(&me.rect, &me.movement, &quit);    
-     
+        handleEvents(&me.rect, &me.movement, &quit, music);
+
         if (joinedServer)
         {
             // Transmit my data to others
@@ -117,7 +138,7 @@ int main(int argv, char **args)
             // Clear Window
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRenderer);
-            
+
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
 
@@ -126,6 +147,9 @@ int main(int argv, char **args)
         }
     }
     //   Close SDL
+    Mix_HaltMusic();
+    Mix_FreeMusic(gameMusic);
+    Mix_CloseAudio();
     SDL_DestroyRenderer(pRenderer);
     SDL_DestroyWindow(pWindow);
     SDLNet_FreePacket(packet);

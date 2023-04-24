@@ -10,13 +10,6 @@
 #include "player.h"
 #include "world.h"
 
-// #define SERVER_PORT 12345
-// #define MAX_PLAYERS 4
-// #define WINDOW_WIDTH 1024
-// #define WINDOW_HEIGHT 1024
-// #define PLAYER_HIGHT 32
-// #define PLAYER_WIDTH 32
-
 bool collisionDetection(int dx, int dy);
 bool collisionWithMap(int dx, int dy);
 
@@ -47,18 +40,13 @@ int main(int argc, char **argv)
         // Receive player updates and join requests
         while (SDLNet_UDP_Recv(server_socket, recieve))
         {
-            // printf("UDP Packet incoming\n");
-            // printf("\tData:    %s\n", (char *)recieve->data);
-            // printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
 
             int dx, dy, player_id, movement, nrOfPoints;
             sscanf((char *)recieve->data, "%d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
             {
-                Player player = {number_of_players, {50, 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 1, recieve->address};
-                players[number_of_players] = player;
-                number_of_players++;
+                Player player = initializePlayer(&number_of_players, players, recieve);
                 printf("Player joined with ID %d\n", player.id);
 
                 packet->address.host = player.address.host;
@@ -66,29 +54,13 @@ int main(int argc, char **argv)
                 sprintf((char *)packet->data, "join_accept %d %d %d %d %d", player.rect.x, player.rect.y, player.id, player.numberOfPoints, player.movement);
                 packet->len = strlen((char *)packet->data) + 1;
                 SDLNet_UDP_Send(server_socket, -1, packet);
-
-                //       memset(packet->data, 0, sizeof(packet->data));
             }
 
             for (int i = 0; i < number_of_players; i++)
             {
                 if (players[i].id == player_id)
                 {
-                    // Update existing player's position
-                    // if (collisionDetection(players[i].rect.x, players[i].rect.y))
-                    // {
-                    //     printf("**************************Krock!\n");
-                    // }
-                    // else
-                    // {
-                    //     printf("Ingen krock!\n");
-                    // }
-
-                    players[i].rect.x = dx;
-                    players[i].rect.y = dy;
-                    players[i].movement = movement;
-                    players[i].numberOfPoints = nrOfPoints;
-                    // printf("Update\n");
+                    updatePlayerPos(players, i, dx, dy, movement, nrOfPoints);
                     break;
                 }
             }
@@ -124,27 +96,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-// bool collisionDetection(int dx, int dy)
-// {
-//     int collison = 0;
-//     collison += collisionWithMap(dx, dy);
-//     collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy);
-//     collison += collisionWithMap(dx, dy + (PLAYER_HIGHT - 1));
-//     collison += collisionWithMap(dx + (PLAYER_WIDTH - 1), dy + (PLAYER_HIGHT - 1));
-//     return collison > 0;
-// }
-// bool collisionWithMap(int dx, int dy)
-// {
-//     // check the corners (all 4)
-//     // För långt till vänster och ner.
-//     int collumn = getCol(dx);
-//     int row = getRow(dy);
-//     printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
-
-//     if (getTileGrid(row, collumn) != 7)
-//     {
-//         // printf("%d %d\n", dx, dy);  // TEST
-//         return true;
-//     }
-//     return false;
-// }
