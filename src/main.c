@@ -1,48 +1,44 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 
 #include "SDL2/SDL_net.h"
-#include "globalConst.h"
-#include "world.h"
-#include "events.h"
-#include "render.h"
 #include "client.h"
+#include "events.h"
+#include "globalConst.h"
+#include "render.h"
+#include "world.h"
 
-int main(int argv, char **args)
-{
+int main(int argv, char **args) {
     const char *pngNames[4] = {"resources/healer_f.png",
-                                "resources/mage_f.png",
-                                "resources/mage_m.png",
-                                "resources/ninja_f.png"};
+                               "resources/mage_f.png",
+                               "resources/mage_m.png",
+                               "resources/ninja_f.png"};
 
     SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-    if (!pWindow)
-    {
+    if (!pWindow) {
         printf("Error: %s\n", SDL_GetError());
         SDL_Quit();
         return 1;
     }
 
     SDL_Renderer *pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!pRenderer)
-    {
+    if (!pRenderer) {
         printf("Error: %s\n", SDL_GetError());
         SDL_DestroyWindow(pWindow);
         SDL_Quit();
         return 1;
     }
-    
 
     SDL_Rect subtextures[NUM_SUBTEXTURES];
 
     const int SUBTEXTURE_X_OFFSETS[NUM_SUBTEXTURES] = {0, SUBTEXTURE_WIDTH, 2 * SUBTEXTURE_WIDTH, 3 * SUBTEXTURE_WIDTH};
     const int SUBTEXTURE_Y_OFFSETS[NUM_SUBTEXTURES] = {0, SUBTEXTURE_HEIGHT, 2 * SUBTEXTURE_HEIGHT, 3 * SUBTEXTURE_HEIGHT};
 
-    for (int i = 0; i < NUM_SUBTEXTURES; i++)
-    {
+    for (int i = 0; i < NUM_SUBTEXTURES; i++) {
         SDL_Rect subtextureRect = {SUBTEXTURE_X_OFFSETS[i], SUBTEXTURE_Y_OFFSETS[i], SUBTEXTURE_WIDTH, SUBTEXTURE_HEIGHT};
         subtextures[i] = subtextureRect;
     }
@@ -68,15 +64,13 @@ int main(int argv, char **args)
     SDLNet_Init();
 
     UDPsocket client_socket = SDLNet_UDP_Open(0);
-    if (client_socket == NULL)
-    {
+    if (client_socket == NULL) {
         printf("Failed to open socket: %s\n", SDLNet_GetError());
         return 1;
     }
 
     IPaddress server_address;
-    if (SDLNet_ResolveHost(&server_address, SERVER_IP, SERVER_PORT) == -1)
-    {
+    if (SDLNet_ResolveHost(&server_address, SERVER_IP, SERVER_PORT) == -1) {
         printf("Failed to resolve server address: %s\n", SDLNet_GetError());
         return 1;
     }
@@ -89,7 +83,7 @@ int main(int argv, char **args)
     int number_of_player = 0;
     Player players[MAX_PLAYERS];
     Player me;
-    
+
     bool quit = false;
 
     // Send request
@@ -101,29 +95,31 @@ int main(int argv, char **args)
 
     printf("Request Send\n");
 
-    while (!quit)
-    {
+    while (!quit) {
+        unsigned long long int perfStart = SDL_GetPerformanceCounter();  // ULL to handle large numbers.
         // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
         // Handles quit and movement events
-        handleEvents(&me.rect, &me.movement, &quit);    
-     
-        if (joinedServer)
-        {
+        handleEvents(&me.rect, &me.movement, &quit);
+
+        if (joinedServer) {
             // Transmit my data to others
             transmitData(&me, packet, &client_socket);
 
             // Clear Window
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRenderer);
-            
+
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
 
             // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
         }
+        unsigned long long int perfEnd = SDL_GetPerformanceCounter();
+        float nrOfMS = (perfEnd - perfStart) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+        SDL_Delay(floor(16.666 - nrOfMS));  // 16.666ms for 60 fps
     }
     //   Close SDL
     SDL_DestroyRenderer(pRenderer);
