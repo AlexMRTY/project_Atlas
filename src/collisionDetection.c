@@ -20,12 +20,7 @@ bool collision(int dx, int dy) {
     int collumn = getCol(dx);
     int row = getRow(dy);
     // printf(" X:%d Y:%d , Col:%d, Row:%d \n", dx, dy, collumn, row);
-
-    // if (getTileGrid(row, collumn) != 7)
-    // {
-    //     return true;
-    // }
-    return getTileGrid(row, collumn) != 7 ? true : false;
+    return getTileGrid(row, collumn) != 7;
 }
 int collisionWithPlayer(Player players[], int currentPlayer, int nrOfPlayers) {
     for (int i = 0; i < nrOfPlayers; i++) {
