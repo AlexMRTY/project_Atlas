@@ -1,5 +1,7 @@
 #include "world.h"
 #include "render.h"
+#include "coins.h"
+#include "globalConst.h"
 
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[])
 {
@@ -99,5 +101,37 @@ void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])
         gTiles[i].y = 0;
         gTiles[i].w = getTileWidth();
         gTiles[i].h = getTileHeight();
+    }
+}
+
+void loadCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int *numCoins)
+{
+    SDL_Surface *gTilesSurface = IMG_Load("resources/âPngtreeâgold coin_3779125.png");
+    *pTexture = SDL_CreateTextureFromSurface(pRenderer, gTilesSurface);
+
+    for (int row = 0; row < getTileRows(); row++)
+    {
+        for (int col = 0; col < getTileColumns(); col++)
+        {
+            if (getTileGrid(row, col) == 7 && (*numCoins) < MAX_COINS)
+            {
+                // Add a coin to the center of the tile
+                int coinX = col * getTileWidth() + getTileWidth() / 2;
+                int coinY = row * getTileHeight() + getTileHeight() / 2;
+                coins[(*numCoins)++] = (Coins){{coinX, coinY, COINS_MAX_W, COINS_MAX_H}, 1, 1}; // array of coins
+            }
+        }
+    }
+}
+
+void renderCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int numCoins)
+{
+    for (int i = 0; i < numCoins; i++)
+    {
+        Coins *coin = &coins[i];
+        if (coin->isVisible == 1)
+        {
+            SDL_RenderCopy(pRenderer, *pTexture, NULL, &coin->coin);
+        }
     }
 }

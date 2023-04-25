@@ -12,6 +12,7 @@
 #include "events.h"
 #include "render.h"
 #include "client.h"
+#include "coins.h"
 
 int main(int argv, char **args)
 {
@@ -82,7 +83,13 @@ int main(int argv, char **args)
     SDL_Texture *tTiles = NULL;
     SDL_Rect gTiles[8];
 
+    SDL_Texture *tCoins = NULL;
+    int numCoins = 0;
+    Coins coins[500];
+
     loadTiles(pRenderer, &tTiles, gTiles);
+
+    loadCoins(pRenderer, &tCoins, coins, &numCoins);
 
     SDLNet_Init();
 
@@ -141,6 +148,8 @@ int main(int argv, char **args)
 
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
+
+            renderCoins(pRenderer, &tCoins, coins, numCoins);
 
             // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
