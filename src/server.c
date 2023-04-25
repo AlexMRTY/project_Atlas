@@ -81,32 +81,37 @@ int main(int argc, char **argv) {
                     break;
                 }
             }
-            int c = 0;
-            for (int i = 0; i < number_of_players; i++) {
-                c = 0;
-                c = collisionWithPlayer(players, i, number_of_players);
-                if (c != -1) {
-                    printf("Collision between player nr: %d and player nr: %d!\n", i, c);
-                }
-            }
 
-            // Send player updates to all clients
-            for (int i = 0; i < number_of_players; i++) {
-                UDPpacket *update_packet = SDLNet_AllocPacket(512);
-                update_packet->address.host = players[i].address.host;  // set host to the client address
-                update_packet->address.port = players[i].address.port;  // set port to the client address
-
-                for (int j = 0; j < number_of_players; j++) {
-                    if (i != j) {
-                        sprintf((char *)update_packet->data, "player_data %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement);
-                        update_packet->len = strlen((char *)update_packet->data) + 1;
-
-                        SDLNet_UDP_Send(server_socket, -1, update_packet);
-                        // printf("Sending data to player %d\n", players[i].id);
+            if (nrOfFPS % 10 == 0) {  // every 5th frame/tick
+                int c = 0;
+                for (int i = 0; i < number_of_players; i++) {
+                    c = 0;
+                    c = collisionWithPlayer(players, i, number_of_players);
+                    if (c != -1) {
+                        printf("Collision between player nr: %d and player nr: %d!\n", i, c);
                     }
                 }
+            }
+            // Send player updates to all clients
 
-                SDLNet_FreePacket(update_packet);
+            if (nrOfFPS % 3 == 0) {  // every 3rd frame/tick
+                for (int i = 0; i < number_of_players; i++) {
+                    UDPpacket *update_packet = SDLNet_AllocPacket(512);
+                    update_packet->address.host = players[i].address.host;  // set host to the client address
+                    update_packet->address.port = players[i].address.port;  // set port to the client address
+
+                    for (int j = 0; j < number_of_players; j++) {
+                        if (i != j) {
+                            sprintf((char *)update_packet->data, "player_data %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement);
+                            update_packet->len = strlen((char *)update_packet->data) + 1;
+
+                            SDLNet_UDP_Send(server_socket, -1, update_packet);
+                            // printf("Sending data to player %d\n", players[i].id);
+                        }
+                    }
+
+                    SDLNet_FreePacket(update_packet);
+                }
             }
         }
     }
