@@ -104,10 +104,21 @@ void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])
     }
 }
 
-void loadCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int *numCoins)
+void loadCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int *numCoins, SDL_Rect gCoins[])
 {
-    SDL_Surface *gTilesSurface = IMG_Load("resources/âPngtreeâgold coin_3779125.png");
+    SDL_Surface *gTilesSurface = IMG_Load("resources/Full Coinss.png");
     *pTexture = SDL_CreateTextureFromSurface(pRenderer, gTilesSurface);
+
+    int coinWidth = gTilesSurface->w / COIN_FRAMES;
+    int coinHeight = gTilesSurface->h;
+
+    for (int i = 0; i < COIN_FRAMES; i++)
+    {
+        gCoins[i].x = i * coinWidth;
+        gCoins[i].y = 0;
+        gCoins[i].w = coinWidth;
+        gCoins[i].h = coinHeight;
+    }
 
     for (int row = 0; row < getTileRows(); row++)
     {
@@ -118,20 +129,23 @@ void loadCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], i
                 // Add a coin to the center of the tile
                 int coinX = col * getTileWidth() + getTileWidth() / 2;
                 int coinY = row * getTileHeight() + getTileHeight() / 2;
-                coins[(*numCoins)++] = (Coins){{coinX, coinY, COINS_MAX_W, COINS_MAX_H}, 1, 1}; // array of coins
+                coins[(*numCoins)++] = (Coins){{coinX, coinY, COINS_MAX_W, COINS_MAX_H}, 1, 1}; // Array of coins
             }
         }
     }
 }
 
-void renderCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int numCoins)
+void renderCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int numCoins, SDL_Rect gCoins[], int frame)
 {
     for (int i = 0; i < numCoins; i++)
     {
         Coins *coin = &coins[i];
         if (coin->isVisible == 1)
         {
-            SDL_RenderCopy(pRenderer, *pTexture, NULL, &coin->coin);
+            int frameIndex = (frame / COIN_ANIMATION_DELAY) % COIN_FRAMES;
+
+            SDL_Rect coinFrame = gCoins[frameIndex];
+            SDL_RenderCopy(pRenderer, *pTexture, &coinFrame, &coin->coin);
         }
     }
 }

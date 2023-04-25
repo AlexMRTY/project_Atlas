@@ -86,10 +86,12 @@ int main(int argv, char **args)
     SDL_Texture *tCoins = NULL;
     int numCoins = 0;
     Coins coins[500];
+    SDL_Rect gCoins[8];
+    int frame = 0;
 
     loadTiles(pRenderer, &tTiles, gTiles);
 
-    loadCoins(pRenderer, &tCoins, coins, &numCoins);
+    loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
 
     SDLNet_Init();
 
@@ -149,10 +151,13 @@ int main(int argv, char **args)
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
 
-            renderCoins(pRenderer, &tCoins, coins, numCoins);
+            // Render all coins
+            renderCoins(pRenderer, &tCoins, coins, numCoins, gCoins, frame);
 
             // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me);
+
+            frame++;
         }
     }
     //   Close SDL

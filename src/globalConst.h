@@ -19,7 +19,8 @@
 #define SERVER_PORT 12345
 
 #define MAX_COINS 500
-#define COINS_MAX_W 18
-#define COINS_MAX_H 18
-
+#define COINS_MAX_W 12
+#define COINS_MAX_H 12
+#define COIN_FRAMES 8
+#define COIN_ANIMATION_DELAY 15
 #endif
