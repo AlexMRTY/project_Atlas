@@ -30,9 +30,25 @@ int main(int argc, char **argv) {
     Player players[MAX_PLAYERS];
     int number_of_players = 0;
 
+    long long int startingTick = SDL_GetTicks();
+    long long int nrOfFPS = 0;
+
     while (1) {
         // Receive player updates and join requests
         while (SDLNet_UDP_Recv(server_socket, recieve)) {
+            long long int tick = SDL_GetTicks();
+            nrOfFPS++;
+
+            if (nrOfFPS % 30 == 0)  // every 30fps
+            {
+                float avgFPS = (float)nrOfFPS / ((tick - startingTick) / 1000.f);
+                printf("avg fps: %.2f\n", avgFPS);
+            }
+            if (nrOfFPS % 150 == 0) {
+                startingTick = tick;  // resetting fps ctr;
+                nrOfFPS = 0;
+            }
+
             // printf("UDP Packet incoming\n");
             // printf("\tData:    %s\n", (char *)recieve->data);
             // printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);
