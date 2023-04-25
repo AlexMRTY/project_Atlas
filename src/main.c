@@ -18,7 +18,7 @@ int main(int argv, char **args) {
                                "resources/mage_m.png",
                                "resources/ninja_f.png"};
 
-    SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);  // openGL or VULKAN is for HW acceleration, could do with OS specifik HWA (OPENGL, VULKAN, METAL, DX and so on)
+    SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);  // openGL, metal is for HW acceleration, could do with OS specifik HWA (OPENGL, VULKAN, METAL, DX and so on)
     if (!pWindow) {
         printf("Error: %s\n", SDL_GetError());
         SDL_Quit();
@@ -98,7 +98,7 @@ int main(int argv, char **args) {
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
     while (!quit) {
-                // Handle UDP packet recieved from Server.
+        // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
         // Handles quit and movement events
