@@ -95,7 +95,16 @@ int main(int argv, char **args) {
 
     printf("Request Send\n");
 
+    long long int tick = SDL_GetTicks();
+    long long int nextTick = tick;
     while (!quit) {
+        long long int tick = SDL_GetTicks();
+
+        if (tick < nextTick) {
+            SDL_Delay(nextTick - tick);
+        }
+        nextTick = tick + (1000 / 30);  // ms /fps
+
         // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
