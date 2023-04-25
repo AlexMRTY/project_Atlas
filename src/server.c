@@ -30,18 +30,9 @@ int main(int argc, char **argv) {
     Player players[MAX_PLAYERS];
     int number_of_players = 0;
 
-    long long int tick = SDL_GetTicks();
-    long long int nextTick = tick;
-
     while (1) {
         // Receive player updates and join requests
         while (SDLNet_UDP_Recv(server_socket, recieve)) {
-            long long int tick = SDL_GetTicks();
-
-            if (tick < nextTick) {
-                SDL_Delay(nextTick - tick);
-            }
-            nextTick = tick + (1000 / 120);  // ms /fps
             // printf("UDP Packet incoming\n");
             // printf("\tData:    %s\n", (char *)recieve->data);
             // printf("\tAddress: %x %x\n", recieve->address.host, recieve->address.port);

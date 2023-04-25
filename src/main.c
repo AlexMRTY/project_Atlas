@@ -95,23 +95,28 @@ int main(int argv, char **args) {
 
     printf("Request Send\n");
 
-    long long int tick = SDL_GetTicks();
-    long long int nextTick = tick;
+    long long int startingTick = SDL_GetTicks();
+    long long int nrOfFPS = 0;
     while (!quit) {
-        long long int tick = SDL_GetTicks();
-
-        if (tick < nextTick) {
-            SDL_Delay(nextTick - tick);
-        }
-        nextTick = tick + (1000 / 30);  // ms /fps
-
-        // Handle UDP packet recieved from Server.
+                // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
         // Handles quit and movement events
         handleEvents(&me.rect, &me.movement, &quit);
 
         if (joinedServer) {
+            long long int tick = SDL_GetTicks();
+            nrOfFPS++;
+
+            if (nrOfFPS % 30 == 0)  // every 30fps
+            {
+                float avgFPS = (float)nrOfFPS / ((tick - startingTick) / 1000.f);
+                printf("avg fps: %.2f\n", avgFPS);
+            }
+            if (nrOfFPS % 150 == 0) {
+                startingTick = tick;  // resetting fps ctr;
+                nrOfFPS = 0;
+            }
             // Transmit my data to others
             transmitData(&me, packet, &client_socket);
 
