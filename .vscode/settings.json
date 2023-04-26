@@ -36,6 +36,7 @@
   "C_Cpp_Runner.useAddressSanitizer": false,
   "C_Cpp.errorSquiggles": "disabled",
   "files.associations": {
-    "collisiondetection.h": "c"
+    "collisiondetection.h": "c",
+    "globalconst.h": "c"
   }
 }

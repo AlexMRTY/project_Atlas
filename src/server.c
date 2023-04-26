@@ -82,13 +82,23 @@ int main(int argc, char **argv) {
                 }
             }
 
-            if (nrOfFPS % 10 == 0) {  // every 5th frame/tick
+            if (nrOfFPS % 10 == 0) {  // every 10th frame/tick
                 int c = 0;
                 for (int i = 0; i < number_of_players; i++) {
                     c = 0;
                     c = collisionWithPlayer(players, i, number_of_players);
                     if (c != -1) {
-                        printf("Collision between player nr: %d and player nr: %d!\n", i, c);
+                        // printf("Collision between player nr: %d and player nr: %d!\n", i, c);
+                    }
+                }
+            }
+
+            if (nrOfFPS % 8 == 0) {  // every 8th frame/tick
+                for (int i = 0; i < number_of_players; i++) {
+                    for (int j = 0; j < number_of_players; j++) {
+                        if (collisionWithPlayerB(players[i], players[j]) && j != i) {
+                            printf("Collision between player nr: %d and player nr: %d!\n", i, j);
+                        }
                     }
                 }
             }

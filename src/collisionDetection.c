@@ -32,3 +32,6 @@ int collisionWithPlayer(Player players[], int currentPlayer, int nrOfPlayers) {
     }
     return -1;
 }
+bool collisionWithPlayerB(Player player1, Player player2) {
+    return SDL_HasIntersection(&player1.rect, &player2.rect);
+}
