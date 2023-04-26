@@ -7,11 +7,10 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
+
 #include "player.h"
 #include "world.h"
-
-bool collisionDetection(int dx, int dy);
-bool collisionWithMap(int dx, int dy);
+#include "collisionDetection.h"
 
 int main(int argc, char **argv)
 {
@@ -35,11 +34,27 @@ int main(int argc, char **argv)
     Player players[MAX_PLAYERS];
     int number_of_players = 0;
 
+    long long int startingTick = SDL_GetTicks();
+    long long int nrOfFPS = 0;
+
     while (1)
     {
         // Receive player updates and join requests
         while (SDLNet_UDP_Recv(server_socket, recieve))
         {
+            long long int tick = SDL_GetTicks();
+            nrOfFPS++;
+
+            if (nrOfFPS % 30 == 0) // every 30fps
+            {
+                float avgFPS = (float)nrOfFPS / ((tick - startingTick) / 1000.f);
+                printf("avg fps: %.2f\n", avgFPS);
+            }
+            if (nrOfFPS % 150 == 0)
+            {
+                startingTick = tick; // resetting fps ctr;
+                nrOfFPS = 0;
+            }
 
             int dx, dy, player_id, movement, nrOfPoints;
             sscanf((char *)recieve->data, "%d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement);
@@ -65,26 +80,45 @@ int main(int argc, char **argv)
                 }
             }
 
-            // Send player updates to all clients
-            for (int i = 0; i < number_of_players; i++)
-            {
-                UDPpacket *update_packet = SDLNet_AllocPacket(512);
-                update_packet->address.host = players[i].address.host; // set host to the client address
-                update_packet->address.port = players[i].address.port; // set port to the client address
-
-                for (int j = 0; j < number_of_players; j++)
+            /*
+            if (nrOfFPS % 10 == 0)
+            { // every 5th frame/tick
+                bool c = false;
+                for (int i = 0; i < number_of_players; i++)
                 {
-                    if (i != j)
+                    c = false;
+                    c = collisionWithPlayer(players, i, number_of_players);
+                    if (c)
                     {
-                        sprintf((char *)update_packet->data, "player_data %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement);
-                        update_packet->len = strlen((char *)update_packet->data) + 1;
-
-                        SDLNet_UDP_Send(server_socket, -1, update_packet);
-                        printf("Sending data to player %d\n", players[i].id);
+                        printf("Collision between player nr: %d and player nr: %d!\n", i, c);
                     }
                 }
+            }
+            */
 
-                SDLNet_FreePacket(update_packet);
+            // Send player updates to all clients
+            if (nrOfFPS % 3 == 0)
+            { // every 3rd frame/tick
+                for (int i = 0; i < number_of_players; i++)
+                {
+                    UDPpacket *update_packet = SDLNet_AllocPacket(512);
+                    update_packet->address.host = players[i].address.host; // set host to the client address
+                    update_packet->address.port = players[i].address.port; // set port to the client address
+
+                    for (int j = 0; j < number_of_players; j++)
+                    {
+                        if (i != j)
+                        {
+                            sprintf((char *)update_packet->data, "player_data %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement);
+                            update_packet->len = strlen((char *)update_packet->data) + 1;
+
+                            SDLNet_UDP_Send(server_socket, -1, update_packet);
+                            printf("Sending data to player %d\n", players[i].id);
+                        }
+                    }
+
+                    SDLNet_FreePacket(update_packet);
+                }
             }
         }
     }

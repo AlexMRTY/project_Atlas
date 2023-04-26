@@ -3,7 +3,7 @@
 
 Player initializePlayer(int *number_of_player, Player players[MAX_PLAYERS], UDPpacket *recieve)
 {
-    Player player = {(*number_of_player), {50, 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 1, recieve->address};
+    Player player = {(*number_of_player), {(50 + ((*number_of_player) * 50)), 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 1, recieve->address};
     players[*number_of_player] = player;
     (*number_of_player)++;
     return player;

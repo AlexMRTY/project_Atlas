@@ -3,7 +3,7 @@
 #include "events.h"
 #include "SDL2/SDL_mixer.h"
 
-void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music)
+void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int nrOfPlayers)
 {
 
     SDL_Event event;
@@ -12,7 +12,7 @@ void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music)
     {
         *quit = handleQuit(&event);
 
-        transformCharacter(&event, rect, movement, music);
+        transformCharacter(&event, rect, movement, music, players, currentPlayer, nrOfPlayers);
     }
 }
 
@@ -21,44 +21,50 @@ bool handleQuit(SDL_Event *event)
     return (event->type == SDL_QUIT) ? true : false;
 }
 
-void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chunk *music)
+void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chunk *music, Player players[], int currentPlayer, int nrOfPlayers)
 {
     if (event->type != SDL_KEYDOWN)
         return;
 
+    SDL_Rect nextPos = *rect;
+
     switch (event->key.keysym.sym)
     {
     case SDLK_UP:
-
-        rect->y = (!collisionWithWall(rect->x, rect->y - PLAYER_MOVE_SPEED))
-                      ? (rect->y - PLAYER_MOVE_SPEED)
-                      : rect->y; // Ternary operator alternative
-
-        *movement = 1; // Character facing direction
-        Mix_PlayChannel(-1, music, 0);
+        nextPos.y -= PLAYER_MOVE_SPEED;
+        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos))
+        {
+            rect->y -= PLAYER_MOVE_SPEED;
+            *movement = 1;
+            Mix_PlayChannel(-1, music, 0);
+        }
         break;
     case SDLK_DOWN:
-        rect->y = (!collisionWithWall(rect->x, rect->y + PLAYER_MOVE_SPEED))
-                      ? (rect->y + PLAYER_MOVE_SPEED)
-                      : rect->y; // Ternary operator alternative
-
-        *movement = 2; // Character facing direction
-        Mix_PlayChannel(-1, music, 0);
+        nextPos.y += PLAYER_MOVE_SPEED;
+        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos))
+        {
+            rect->y += PLAYER_MOVE_SPEED;
+            *movement = 2;
+            Mix_PlayChannel(-1, music, 0);
+        }
         break;
     case SDLK_LEFT:
-        rect->x = (!collisionWithWall(rect->x - PLAYER_MOVE_SPEED, rect->y))
-                      ? (rect->x - PLAYER_MOVE_SPEED)
-                      : rect->x; // Ternary operator alternative
-        Mix_PlayChannel(-1, music, 0);
-        *movement = 3; // Character facing direction
+        nextPos.x -= PLAYER_MOVE_SPEED;
+        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos))
+        {
+            rect->x -= PLAYER_MOVE_SPEED;
+            *movement = 3;
+            Mix_PlayChannel(-1, music, 0);
+        }
         break;
     case SDLK_RIGHT:
-        rect->x = (!collisionWithWall(rect->x + PLAYER_MOVE_SPEED, rect->y))
-                      ? (rect->x + PLAYER_MOVE_SPEED)
-                      : rect->x; // Ternary operator alternative
-
-        *movement = 4; // Character facing direction
-        Mix_PlayChannel(-1, music, 0);
+        nextPos.x += PLAYER_MOVE_SPEED;
+        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos))
+        {
+            rect->x += PLAYER_MOVE_SPEED;
+            *movement = 4;
+            Mix_PlayChannel(-1, music, 0);
+        }
         break;
     case SDL_KEYUP:
         Mix_FreeChunk(music);
