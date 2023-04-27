@@ -3,7 +3,7 @@
 #include "events.h"
 #include "SDL2/SDL_mixer.h"
 
-void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int nrOfPlayers)
+void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers)
 {
 
     SDL_Event event;
@@ -21,7 +21,7 @@ bool handleQuit(SDL_Event *event)
     return (event->type == SDL_QUIT) ? true : false;
 }
 
-void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chunk *music, Player players[], int currentPlayer, int nrOfPlayers)
+void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers)
 {
     if (event->type != SDL_KEYDOWN)
         return;

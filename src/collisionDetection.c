@@ -23,16 +23,17 @@ bool collision(int dx, int dy)
     return getTileGrid(row, collumn) != 7;
 }
 
-bool collisionWithPlayer(Player players[], int currentPlayer, int nrOfPlayers, SDL_Rect *nextPos)
+bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos)
 {
-    for (int i = 0; i < nrOfPlayers; i++)
+    for (int i = 0; i < (*nrOfPlayers); i++)
     {
-        if (i == currentPlayer)
-            continue;
-
-        if (SDL_HasIntersection(&players[i].rect, nextPos))
-            return true;
+        if (players[i].id != currentPlayer)
+        {
+            if (SDL_HasIntersection(nextPos, &players[i].rect))
+            {
+                return true;
+            }
+        }
     }
     return false;
 }
-

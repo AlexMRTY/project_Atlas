@@ -128,8 +128,10 @@ int main(int argv, char **args)
     bool joinedServer = false;
 
     printf("Request Send\n");
-
     Mix_PlayMusic(gameMusic, -1);
+
+    long long int startingTick = SDL_GetTicks();
+    long long int nrOfFPS = 0;
 
     while (!quit)
     {
@@ -137,10 +139,24 @@ int main(int argv, char **args)
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
         // Handles quit and movement events
-        handleEvents(&me.rect, &me.movement, &quit, music);
+        handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player);
 
         if (joinedServer)
         {
+            long long int tick = SDL_GetTicks();
+            nrOfFPS++;
+
+            if (nrOfFPS % 30 == 0) // every 30fps
+            {
+                float avgFPS = (float)nrOfFPS / ((tick - startingTick) / 1000.f);
+                printf("avg fps: %.2f\n", avgFPS);
+            }
+            if (nrOfFPS % 150 == 0)
+            {
+                startingTick = tick; // resetting fps ctr;
+                nrOfFPS = 0;
+            }
+
             // Transmit my data to others
             transmitData(&me, packet, &client_socket);
 
