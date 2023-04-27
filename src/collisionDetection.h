@@ -11,5 +11,6 @@
 
 int collisionWithWall(int dx, int dy);
 bool collision(int dx, int dy);
-bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos); // returns the player's nr in the array or -1 if no collision.
+bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos);
+bool collisionWithCoins();
 #endif
