@@ -28,8 +28,8 @@ main.o: $(SRCDIR)$(DIR_SEP)main.c
 world.o: $(SRCDIR)$(DIR_SEP)world.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)world.c
 
-server: server.o world.o collisionDetection.o
-	$(CC) server.o world.o player.o collisionDetection.o -o server $(LDFLAGS) $(LIBS)
+server: server.o world.o collisionDetection.o coins.o
+	$(CC) server.o world.o player.o collisionDetection.o coins.o -o server $(LDFLAGS) $(LIBS)
 
 server.o: $(SRCDIR)$(DIR_SEP)server.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)server.c -o server.o
@@ -48,6 +48,9 @@ client.o: $(SRCDIR)$(DIR_SEP)client.c
 
 player.o: $(SRCDIR)$(DIR_SEP)player.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)player.c
+
+coins.o: $(SRCDIR)$(DIR_SEP)coins.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)coins.c	
 
 clean:
 	$(RM) *.o main server

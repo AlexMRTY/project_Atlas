@@ -11,6 +11,7 @@
 #include "player.h"
 #include "world.h"
 #include "collisionDetection.h"
+#include "coins.h"
 
 int main(int argc, char **argv)
 {
@@ -32,10 +33,16 @@ int main(int argc, char **argv)
     UDPpacket *packet = SDLNet_AllocPacket(512);
     UDPpacket *recieve = SDLNet_AllocPacket(512);
     Player players[MAX_PLAYERS];
+    Coins coins[MAX_COINS];
+    int numberOfCoins = 0;
     int number_of_players = 0;
 
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
+
+    initializeCoins(coins, &numberOfCoins);
+
+    printf("number of coins: %d\n", numberOfCoins);
 
     while (1)
     {
@@ -56,7 +63,7 @@ int main(int argc, char **argv)
                 nrOfFPS = 0;
             }
 
-            int dx, dy, player_id, movement, nrOfPoints;
+            int dx, dy, player_id, movement, nrOfPoints, coinX, coinY, isVisible, points, coinId;
             sscanf((char *)recieve->data, "%d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
@@ -71,6 +78,47 @@ int main(int argc, char **argv)
                 SDLNet_UDP_Send(server_socket, -1, packet);
             }
 
+            else if (sscanf((char *)recieve->data, "coins_update %d %d %d %d %d", &coinX, &coinY, &isVisible, &points, &coinId) == 5)
+            {
+                for (int j = 0; j < numberOfCoins; j++)
+                {
+                    if (coins[j].id == coinId)
+                    {
+                        updateCoins(coins, coinId, isVisible);
+                        printf("Updating Coins!\n");
+                    }
+                }
+                for (int i = 0; i < number_of_players; i++)
+                {
+                    UDPpacket *update_packet = SDLNet_AllocPacket(512);
+                    update_packet->address.host = players[i].address.host; // set host to the client address
+                    update_packet->address.port = players[i].address.port; // set port to the client address
+
+                    sprintf((char *)update_packet->data, "coins_data %d %d %d %d %d", coins[coinId].coin.x, coins[coinId].coin.y, coins[coinId].isVisible, coins[coinId].points, coins[coinId].id);
+                    update_packet->len = strlen((char *)update_packet->data) + 1;
+                    SDLNet_UDP_Send(server_socket, -1, update_packet);
+                    printf("Sending Coins data to player %d\n", players[i].id);
+
+                    SDLNet_FreePacket(update_packet);
+                }
+            }
+            else if (strcmp((char *)recieve->data, "coins_request") == 0)
+            {
+                UDPpacket *update_packet = SDLNet_AllocPacket(512);
+                update_packet->address.host = recieve->address.host; // set host to the client address
+                update_packet->address.port = recieve->address.port; // set port to the client address
+                for (int j = 0; j < numberOfCoins; j++)
+                {
+                    sprintf((char *)update_packet->data, "coins_response %d %d %d %d %d", coins[j].coin.x, coins[j].coin.y, coins[j].isVisible, coins[j].points, coins[j].id);
+                    update_packet->len = strlen((char *)update_packet->data) + 1;
+
+                    SDLNet_UDP_Send(server_socket, -1, update_packet);
+                    printf("Sending Coins data to player \n");
+                }
+
+                SDLNet_FreePacket(update_packet);
+            }
+
             for (int i = 0; i < number_of_players; i++)
             {
                 if (players[i].id == player_id)
@@ -79,22 +127,6 @@ int main(int argc, char **argv)
                     break;
                 }
             }
-
-            /*
-            if (nrOfFPS % 10 == 0)
-            { // every 5th frame/tick
-                bool c = false;
-                for (int i = 0; i < number_of_players; i++)
-                {
-                    c = false;
-                    c = collisionWithPlayer(players, i, number_of_players);
-                    if (c)
-                    {
-                        printf("Collision between player nr: %d and player nr: %d!\n", i, c);
-                    }
-                }
-            }
-            */
 
             // Send player updates to all clients
             if (nrOfFPS % 3 == 0)
@@ -116,7 +148,6 @@ int main(int argc, char **argv)
                             printf("Sending data to player %d\n", players[i].id);
                         }
                     }
-
                     SDLNet_FreePacket(update_packet);
                 }
             }

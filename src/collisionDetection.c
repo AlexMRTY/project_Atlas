@@ -1,8 +1,10 @@
 #include "collisionDetection.h"
 #include "globalConst.h"
 #include "world.h"
+#include "client.h"
 
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 
 int collisionWithWall(int dx, int dy)
 {
@@ -31,6 +33,25 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
         {
             if (SDL_HasIntersection(nextPos, &players[i].rect))
             {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update)
+{
+    for (int i = 0; i < MAX_COINS; i++)
+    {
+        Coins *coin = &coins[i];
+        if (SDL_HasIntersection(&coin->coin, rect))
+        {
+            if (coin->isVisible == 1)
+            {
+                coin->isVisible = 0;
+                (*numberOfPoints) += coin->points;
+                *update = coin->id;
                 return true;
             }
         }

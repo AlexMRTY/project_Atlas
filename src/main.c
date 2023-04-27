@@ -50,6 +50,12 @@ int main(int argv, char **args)
         printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
     }
 
+    Mix_Chunk *coinsSound = Mix_LoadWAV("resources/mixkit-money-bag-drop-1989.wav");
+    if (music == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
+
     Mix_Music *gameMusic = Mix_LoadMUS("resources/Spazzmatica-Polka.mp3");
     if (gameMusic == NULL)
     {
@@ -85,9 +91,10 @@ int main(int argv, char **args)
 
     SDL_Texture *tCoins = NULL;
     int numCoins = 0;
-    Coins coins[500];
+    Coins coins[MAX_COINS];
     SDL_Rect gCoins[8];
     int frame = 0;
+    int update = -1;
 
     loadTiles(pRenderer, &tTiles, gTiles);
 
@@ -125,6 +132,9 @@ int main(int argv, char **args)
     packet->len = strlen((char *)packet->data) + 1;
     SDLNet_UDP_Send(client_socket, -1, packet);
 
+    strcpy((char *)packet->data, "coins_request");
+    packet->len = strlen((char *)packet->data) + 1;
+    SDLNet_UDP_Send(client_socket, -1, packet);
     bool joinedServer = false;
 
     printf("Request Send\n");
@@ -136,10 +146,10 @@ int main(int argv, char **args)
     while (!quit)
     {
         // Handle UDP packet recieved from Server.
-        HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
+        HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer, coins, &numCoins);
 
         // Handles quit and movement events
-        handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player);
+        handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update);
 
         if (joinedServer)
         {
@@ -159,6 +169,8 @@ int main(int argv, char **args)
 
             // Transmit my data to others
             transmitData(&me, packet, &client_socket);
+
+            transmitCoins(coins, numCoins, packet, &client_socket, update);
 
             // Clear Window
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);

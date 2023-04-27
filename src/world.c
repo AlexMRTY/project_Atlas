@@ -39,34 +39,36 @@ static int tileGrid[32][32] = {
     {1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 1},
     {6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5}};
 
-// void getRowAndCol(int cord[], int x, int y) {
-//     cord[0] = x / 32;
-//     cord[1] = y / 32;
-// }
-
-int getCol(int x) {
+int getCol(int x)
+{
     return x / 32;
 }
-int getRow(int y) {
+int getRow(int y)
+{
     return y / 32;
 }
 
-int getTileRows() {
+int getTileRows()
+{
     return TILE_ROWS;
 }
 
-int getTileColumns() {
+int getTileColumns()
+{
     return TILE_COLUMNS;
 }
 
-int getTileWidth() {
+int getTileWidth()
+{
     return TILE_WIDTH;
 }
 
-int getTileHeight() {
+int getTileHeight()
+{
     return TILE_HEIGHT;
 }
 
-int getTileGrid(int x, int y) {
+int getTileGrid(int x, int y)
+{
     return tileGrid[x][y];
 }
