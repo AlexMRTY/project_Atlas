@@ -13,6 +13,7 @@
 #include "render.h"
 #include "client.h"
 #include "coins.h"
+#include "player.h"
 
 int main(int argv, char **args)
 {
@@ -143,13 +144,12 @@ int main(int argv, char **args)
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
 
-    while (!quit)
+    while (!quit && !isGameOver(me))
     {
         // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer, coins, &numCoins);
 
         // Handles quit and movement events
-        handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update);
 
         if (joinedServer)
         {
@@ -166,11 +166,15 @@ int main(int argv, char **args)
                 startingTick = tick; // resetting fps ctr;
                 nrOfFPS = 0;
             }
+            handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update);
 
             // Transmit my data to others
             transmitData(&me, packet, &client_socket);
 
             transmitCoins(coins, numCoins, packet, &client_socket, update);
+
+            if (isMonster(me.id))
+                transmittDiedPlayer(packet, &client_socket, players, number_of_player);
 
             // Clear Window
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);

@@ -18,7 +18,7 @@
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 12345
 
-#define MAX_COINS 300
+#define MAX_COINS 500
 #define COINS_MAX_W 12
 #define COINS_MAX_H 12
 #define COIN_FRAMES 8

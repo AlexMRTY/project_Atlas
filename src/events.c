@@ -38,7 +38,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
             rect->y -= PLAYER_MOVE_SPEED;
             *movement = 1;
             Mix_PlayChannel(-1, music, 0);
-            if (collisionWithCoins(coins, numberOfPoints, rect, update))
+            if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;
@@ -49,7 +49,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
             rect->y += PLAYER_MOVE_SPEED;
             *movement = 2;
             Mix_PlayChannel(-1, music, 0);
-            if (collisionWithCoins(coins, numberOfPoints, rect, update))
+            if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;
@@ -60,7 +60,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
             rect->x -= PLAYER_MOVE_SPEED;
             *movement = 3;
             Mix_PlayChannel(-1, music, 0);
-            if (collisionWithCoins(coins, numberOfPoints, rect, update))
+            if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;
@@ -71,7 +71,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
             rect->x += PLAYER_MOVE_SPEED;
             *movement = 4;
             Mix_PlayChannel(-1, music, 0);
-            if (collisionWithCoins(coins, numberOfPoints, rect, update))
+            if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;

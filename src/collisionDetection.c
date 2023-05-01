@@ -2,6 +2,7 @@
 #include "globalConst.h"
 #include "world.h"
 #include "client.h"
+#include "player.h"
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -33,6 +34,12 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
         {
             if (SDL_HasIntersection(nextPos, &players[i].rect))
             {
+
+                if (isMonster(currentPlayer))
+                {
+                    players[i].isAlive = 0;
+                }
+
                 return true;
             }
         }
@@ -40,19 +47,22 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
     return false;
 }
 
-bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update)
+bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update, int currentPlayer)
 {
-    for (int i = 0; i < MAX_COINS; i++)
+    if (!isMonster(currentPlayer))
     {
-        Coins *coin = &coins[i];
-        if (SDL_HasIntersection(&coin->coin, rect))
+        for (int i = 0; i < MAX_COINS; i++)
         {
-            if (coin->isVisible == 1)
+            Coins *coin = &coins[i];
+            if (SDL_HasIntersection(&coin->coin, rect))
             {
-                coin->isVisible = 0;
-                (*numberOfPoints) += coin->points;
-                *update = coin->id;
-                return true;
+                if (coin->isVisible == 1)
+                {
+                    coin->isVisible = 0;
+                    (*numberOfPoints) += coin->points;
+                    *update = coin->id;
+                    return true;
+                }
             }
         }
     }

@@ -63,8 +63,8 @@ int main(int argc, char **argv)
                 nrOfFPS = 0;
             }
 
-            int dx, dy, player_id, movement, nrOfPoints, coinX, coinY, isVisible, points, coinId;
-            sscanf((char *)recieve->data, "%d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement);
+            int dx, dy, player_id, movement, nrOfPoints, isAlive, coinX, coinY, isVisible, points, coinId, killId, killIsAlive;
+            sscanf((char *)recieve->data, "%d %d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement, &isAlive);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
             {
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 
                 packet->address.host = player.address.host;
                 packet->address.port = player.address.port;
-                sprintf((char *)packet->data, "join_accept %d %d %d %d %d", player.rect.x, player.rect.y, player.id, player.numberOfPoints, player.movement);
+                sprintf((char *)packet->data, "join_accept %d %d %d %d %d %d", player.rect.x, player.rect.y, player.id, player.numberOfPoints, player.movement, player.isAlive);
                 packet->len = strlen((char *)packet->data) + 1;
                 SDLNet_UDP_Send(server_socket, -1, packet);
             }
@@ -118,12 +118,17 @@ int main(int argc, char **argv)
 
                 SDLNet_FreePacket(update_packet);
             }
+            else if (sscanf((char *)recieve->data, "new kill %d %d", &killId, &killIsAlive) == 2)
+            {
+                updateIsAlive(killId, killIsAlive, number_of_players, players);
+                printf("new kill...\n");
+            }
 
             for (int i = 0; i < number_of_players; i++)
             {
                 if (players[i].id == player_id)
                 {
-                    updatePlayerPos(players, i, dx, dy, movement, nrOfPoints);
+                    updatePlayerPos(players, i, dx, dy, movement, nrOfPoints, isAlive);
                     break;
                 }
             }
@@ -139,14 +144,14 @@ int main(int argc, char **argv)
 
                     for (int j = 0; j < number_of_players; j++)
                     {
-                        if (i != j)
-                        {
-                            sprintf((char *)update_packet->data, "player_data %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement);
-                            update_packet->len = strlen((char *)update_packet->data) + 1;
+                        //     if (i != j)
+                        //    {
+                        sprintf((char *)update_packet->data, "player_data %d %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement, players[j].isAlive);
+                        update_packet->len = strlen((char *)update_packet->data) + 1;
 
-                            SDLNet_UDP_Send(server_socket, -1, update_packet);
-                            printf("Sending data to player %d\n", players[i].id);
-                        }
+                        SDLNet_UDP_Send(server_socket, -1, update_packet);
+                        printf("Sending data to player %d\n", players[i].id);
+                        //   }
                     }
                     SDLNet_FreePacket(update_packet);
                 }

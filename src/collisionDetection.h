@@ -13,5 +13,5 @@
 int collisionWithWall(int dx, int dy);
 bool collision(int dx, int dy);
 bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos);
-bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update);
+bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update, int currentPlayer);
 #endif
