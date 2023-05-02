@@ -14,9 +14,9 @@
 int main(int argv, char **args)
 {
     const char *pngNames[4] = {"resources/healer_f.png",
-                                "resources/mage_f.png",
-                                "resources/mage_m.png",
-                                "resources/ninja_f.png"};
+                               "resources/mage_f.png",
+                               "resources/mage_m.png",
+                               "resources/ninja_f.png"};
 
     SDL_Window *pWindow = SDL_CreateWindow("Enkelt exempel 1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     if (!pWindow)
@@ -34,53 +34,58 @@ int main(int argv, char **args)
         SDL_Quit();
         return 1;
     }
-    
-    //COUNT DOWN CODE, MUST BE OPTIMIZED
-    //SDL_Init(SDL_INIT_VIDEO);
+
+    // COUNT DOWN CODE, MUST BE OPTIMIZED
+    // SDL_Init(SDL_INIT_VIDEO);
     TTF_Init();
-    SDL_Window* window = SDL_CreateWindow("Countdown", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    TTF_Font* font = TTF_OpenFont("/Users/dilazaeifnejad/Downloads/Roboto", 48);
-    int countdownDuration = 10;  // in seconds
+    SDL_Window *window = SDL_CreateWindow("Countdown", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    TTF_Font *font = TTF_OpenFont("resources/Roboto-Light.ttf", 48);
+    printf("open font\n");
+    int countdownDuration = 10; // in seconds
     int countdownValue = countdownDuration;
     SDL_Event event;
     int quit1 = 0;
 
-    while (!quit1) {
-        while (SDL_PollEvent(&event) != 0) {
-            if (event.type == SDL_QUIT) {
+    while (!quit1)
+    {
+        while (SDL_PollEvent(&event) != 0)
+        {
+            if (event.type == SDL_QUIT)
+            {
                 quit1 = 1;
             }
         }
-    
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Set background color
-        SDL_RenderClear(renderer);  // Clear the renderer
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color
+        SDL_RenderClear(renderer);                      // Clear the renderer
 
         // Render the countdown text
         char countdownText[20];
         sprintf(countdownText, "Time Left: %d", countdownValue);
-        SDL_Color textColor = {255, 255, 255};  // White color
-        SDL_Surface* surface = TTF_RenderText_Solid(font, countdownText, textColor);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Color textColor = {255, 255, 255}; // White color
+        SDL_Surface *surface = TTF_RenderText_Solid(font, countdownText, textColor);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
         // Determine the position of the text
         SDL_Rect textRect;
-        textRect.x = 400 - surface->w / 2;  // Centered horizontally
-        textRect.y = 300 - surface->h / 2;  // Centered vertically
+        textRect.x = 400 - surface->w / 2; // Centered horizontally
+        textRect.y = 300 - surface->h / 2; // Centered vertically
 
-        SDL_RenderCopy(renderer, texture, NULL, &textRect);  // Render the countdown text
-        SDL_RenderPresent(renderer);  // Update the screen
+        SDL_RenderCopy(renderer, texture, NULL, &textRect); // Render the countdown text
+        SDL_RenderPresent(renderer);                        // Update the screen
 
         SDL_DestroyTexture(texture);
         SDL_FreeSurface(surface);
 
         // Update the countdown
         countdownValue--;
-        if (countdownValue < 0) {
-            quit1 = 1;  // Exit the loop when countdown reaches 0
+        if (countdownValue < 0)
+        {
+            quit1 = 1; // Exit the loop when countdown reaches 0
         }
 
-        SDL_Delay(1000);  // Delay for 1 second
+        SDL_Delay(1000); // Delay for 1 second
     }
 
     SDL_Rect subtextures[NUM_SUBTEXTURES];
@@ -136,7 +141,7 @@ int main(int argv, char **args)
     int number_of_player = 0;
     Player players[MAX_PLAYERS];
     Player me;
-    
+
     bool quit = false;
 
     // Send request
@@ -154,8 +159,8 @@ int main(int argv, char **args)
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer);
 
         // Handles quit and movement events
-        handleEvents(&me.rect, &me.movement, &quit);    
-     
+        handleEvents(&me.rect, &me.movement, &quit);
+
         if (joinedServer)
         {
             // Transmit my data to others
@@ -164,7 +169,7 @@ int main(int argv, char **args)
             // Clear Window
             SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
             SDL_RenderClear(pRenderer);
-            
+
             // Render background
             renderMap(pRenderer, tTiles, gTiles);
 
