@@ -2,16 +2,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "globalConst.h"
+#include "headers/globalConst.h"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_net.h"
 
-#include "player.h"
-#include "world.h"
-#include "collisionDetection.h"
-#include "coins.h"
+#include "headers/player.h"
+#include "headers/world.h"
+#include "headers/collisionDetection.h"
+#include "headers/coins.h"
 
 int main(int argc, char **argv)
 {

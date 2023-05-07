@@ -1,8 +1,8 @@
-#include "collisionDetection.h"
-#include "globalConst.h"
-#include "world.h"
-#include "client.h"
-#include "player.h"
+#include "headers/collisionDetection.h"
+#include "headers/globalConst.h"
+#include "headers/world.h"
+#include "headers/client.h"
+#include "headers/player.h"
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>

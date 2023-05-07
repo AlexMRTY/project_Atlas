@@ -1,6 +1,6 @@
-#include "coins.h"
-#include "globalConst.h"
-#include "world.h"
+#include "headers/coins.h"
+#include "headers/globalConst.h"
+#include "headers/world.h"
 
 void initializeCoins(Coins coins[], int *numberOfCoins)
 {

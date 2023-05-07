@@ -24,4 +24,6 @@
 #define COIN_FRAMES 8
 #define COIN_ANIMATION_DELAY 15
 
+#define NUMOFMENUOPTIONS 2
+
 #endif

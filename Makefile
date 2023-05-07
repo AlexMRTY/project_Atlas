@@ -4,12 +4,14 @@ DIR_SEP=/
 ifeq ($(OS),Windows_NT)
     # Windows-specific libraries
 	INCLUDE = -L/opt/homebrew/lib/
-    LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_mixer
+    LIBS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_net -lSDL2_mixer -lSDL2_ttf
+
     RM = rm
 else
     # Mac-specific libraries
     INCLUDE = -I/usr/local/include
-    LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main -lSDL2_mixer
+    LIBS = -L/usr/local/lib -lSDL2 -lSDL2_image -lSDL2_net -lSDL2main -lSDL2_mixer -lSDL2_ttf
+
     LDFLAGS = -Wl,-rpath,/usr/local/lib
     RM = rm -f
 endif
@@ -17,10 +19,13 @@ endif
 CC=gcc
 CFLAGS = -g -c $(INCLUDE)
 
+MAINDEPENDENCIES=main.o world.o collisionDetection.o events.o render.o client.o player.o pause.o
+SERVERDEPENDENCIES=server.o world.o player.o collisionDetection.o coins.o
+
 all: main server
 
-main: main.o world.o collisionDetection.o events.o render.o client.o player.o
-	$(CC) main.o world.o collisionDetection.o events.o render.o client.o player.o -o main $(LDFLAGS) $(LIBS)
+main: $(MAINDEPENDENCIES) 
+	$(CC) $(MAINDEPENDENCIES) -o main $(LDFLAGS) $(LIBS)
 
 main.o: $(SRCDIR)$(DIR_SEP)main.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)main.c -o main.o
@@ -28,8 +33,9 @@ main.o: $(SRCDIR)$(DIR_SEP)main.c
 world.o: $(SRCDIR)$(DIR_SEP)world.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)world.c
 
-server: server.o world.o collisionDetection.o coins.o
-	$(CC) server.o world.o player.o collisionDetection.o coins.o -o server $(LDFLAGS) $(LIBS)
+server: $(SERVERDEPENDENCIES)
+	$(CC) $(SERVERDEPENDENCIES) -o server $(LDFLAGS) $(LIBS)
+	$(RM) *.o
 
 server.o: $(SRCDIR)$(DIR_SEP)server.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)server.c -o server.o
@@ -52,5 +58,8 @@ player.o: $(SRCDIR)$(DIR_SEP)player.c
 coins.o: $(SRCDIR)$(DIR_SEP)coins.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)coins.c	
 
+pause.o: $(SRCDIR)$(DIR_SEP)pause.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)pause.c	
+
 clean:
-	$(RM) *.o *.exe main server
+	$(RM) *.exe main server

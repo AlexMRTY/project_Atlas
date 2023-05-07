@@ -1,19 +1,21 @@
 #include "SDL2/SDL_mixer.h"
-#include "globalConst.h"
-#include "collisionDetection.h"
-#include "events.h"
-#include "coins.h"
+#include "headers/globalConst.h"
+#include "headers/collisionDetection.h"
+#include "headers/events.h"
+#include "headers/coins.h"
 
-void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers, int *numberOfPoints, Coins coins[], Mix_Chunk *coinsSound, int *update, Mix_Chunk *deathSound)
+
+void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers, int *numberOfPoints, Coins coins[], Mix_Chunk *coinsSound, int *update, Mix_Chunk *deathSound, int *escapePressed)
 {
 
     SDL_Event event;
 
     while (SDL_PollEvent(&event))
     {
+        // printf("pollevent: %d", SDL_PollEvent(&event));
         *quit = handleQuit(&event);
 
-        transformCharacter(&event, rect, movement, music, players, currentPlayer, nrOfPlayers, numberOfPoints, coins, coinsSound, update, deathSound);
+        transformCharacter(&event, rect, movement, music, players, currentPlayer, nrOfPlayers, numberOfPoints, coins, coinsSound, update, deathSound, escapePressed);
     }
 }
 
@@ -22,7 +24,7 @@ bool handleQuit(SDL_Event *event)
     return (event->type == SDL_QUIT) ? true : false;
 }
 
-void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers, int *numberOfPoints, Coins coins[], Mix_Chunk *coinsSound, int *update, Mix_Chunk *deathSound)
+void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers, int *numberOfPoints, Coins coins[], Mix_Chunk *coinsSound, int *update, Mix_Chunk *deathSound, int *escapePressed)
 {
     if (event->type != SDL_KEYDOWN)
         return;
@@ -31,7 +33,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
 
     switch (event->key.keysym.sym)
     {
-    case SDLK_UP:
+    case SDLK_w:
         nextPos.y -= PLAYER_MOVE_SPEED;
         if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound))
         {
@@ -43,7 +45,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
         }
 
         break;
-    case SDLK_DOWN:
+    case SDLK_s:
         nextPos.y += PLAYER_MOVE_SPEED;
         if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound))
         {
@@ -54,7 +56,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
                 // Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;
-    case SDLK_LEFT:
+    case SDLK_a:
         nextPos.x -= PLAYER_MOVE_SPEED;
         if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound))
         {
@@ -65,7 +67,7 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
                 // Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;
-    case SDLK_RIGHT:
+    case SDLK_d:
         nextPos.x += PLAYER_MOVE_SPEED;
         if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound))
         {
@@ -81,7 +83,20 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
         // Mix_FreeChunk(coinsSound);
         break;
     case SDLK_ESCAPE:
+        (*escapePressed) = 1;
         break;
+    // case SDLK_UP:
+    //     // Move up
+    //     break;
+    // case SDLK_LEFT:
+    //     // Move left
+    //     break;
+    // case SDLK_DOWN:
+    //     // Move down
+    //     break;
+    // case SDLK_RIGHT:
+    //     // Move right
+    //     break;
     default:
         break;
     }

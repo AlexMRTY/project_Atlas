@@ -3,18 +3,19 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include "SDL2/SDL_net.h"
-// #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "globalConst.h"
-#include "world.h"
-#include "events.h"
-#include "render.h"
-#include "client.h"
-#include "coins.h"
-#include "player.h"
+#include "headers/globalConst.h"
+#include "headers/world.h"
+#include "headers/events.h"
+#include "headers/render.h"
+#include "headers/client.h"
+#include "headers/coins.h"
+#include "headers/player.h"
+#include "headers/pause.h"
 
 int main(int argv, char **args)
 {
@@ -47,12 +48,14 @@ int main(int argv, char **args)
 
 	///**********************FONT**********************************///
     // TTF(font) init
-    // if(TTF_Init() == 0){ // new code
-    //     printf("Success to initialize the SDL_ttf library\n");
-    // }
+    if(TTF_Init() == 0){ // new code
+        printf("Success to initialize the SDL_ttf library\n");
+    }
 
-	// TTF_Font* font = TTF_OpenFont("DejaVuSansMono.ttf", 40);
-
+	TTF_Font* font = TTF_OpenFont("resources/ka1.ttf", 40);
+	if (font == NULL) {
+    	printf("TTF_OpenFont failed: %s\n", TTF_GetError());
+	}
 
 	///**********************AUDIO*********************************///
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
@@ -150,6 +153,9 @@ int main(int argv, char **args)
     int update = -1;
     int number_of_player = 0;
     bool quit = false;
+
+	// Menu flags
+    int escapePressed = 0;
     
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
@@ -166,6 +172,8 @@ int main(int argv, char **args)
         subtextures[i] = subtextureRect;
     }
 
+	
+
     ///******SURFACES***********************///
     SDL_Surface *pSurface_one = IMG_Load(pngNames[0]);
     SDL_Surface *pSurface_two = IMG_Load(pngNames[1]);
@@ -175,8 +183,10 @@ int main(int argv, char **args)
 	// PROPS
 	SDL_Surface *gameOverPNG = IMG_Load("resources/pngegg.png");
 
-    ///******TEXTURES**********************///
 	
+
+    ///******TEXTURES**********************///
+
 	// PLAYERS
     SDL_Texture *client_textures[4];
     client_textures[0] = SDL_CreateTextureFromSurface(pRenderer, pSurface_one);
@@ -192,8 +202,11 @@ int main(int argv, char **args)
     SDL_Texture *tTiles = NULL;
     loadTiles(pRenderer, &tTiles, gTiles);
 
+	
 
-    loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
+    
+	
+	loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
 
 
     me.isAlive = 1; // makes the game work on windows
@@ -213,7 +226,7 @@ int main(int argv, char **args)
 		if (nrOfFPS % 30 == 0) // every 30fps
 		{
 			float avgFPS = (float)nrOfFPS / ((tick - startingTick) / 1000.f);
-			printf("avg fps: %.2f\n", avgFPS);
+			// printf("avg fps: %.2f\n", avgFPS);
 		}
 		if (nrOfFPS % 150 == 0)
 		{
@@ -222,7 +235,7 @@ int main(int argv, char **args)
 		}
 
 		// Handles quit and movement events
-		handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update, deathSound);
+		handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update, deathSound, &escapePressed);
 
 		// Transmit cordinates data to server
 		transmitData(&me, packet, &client_socket);
@@ -248,6 +261,12 @@ int main(int argv, char **args)
 		// Render all players
 		renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me, ppTexture);
 
+		if (escapePressed) {
+			pauseMenu(pRenderer, &escapePressed, &quit, font);
+		}
+		// Render frame
+		SDL_RenderPresent(pRenderer);
+
 		frame++;
         
     }
@@ -260,8 +279,8 @@ int main(int argv, char **args)
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(client_socket);
     SDLNet_Quit();
-    // TTF_CloseFont(font); // new code
-    // TTF_Quit(); // new code
+    TTF_CloseFont(font); // new code
+    TTF_Quit(); // new code
     SDL_Quit();
 
     return 0;

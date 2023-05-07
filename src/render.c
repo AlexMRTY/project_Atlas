@@ -1,8 +1,8 @@
-#include "world.h"
-#include "render.h"
-#include "coins.h"
-#include "globalConst.h"
-#include "player.h"
+#include "headers/world.h"
+#include "headers/render.h"
+#include "headers/coins.h"
+#include "headers/globalConst.h"
+#include "headers/player.h"
 
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[])
 {
@@ -97,8 +97,6 @@ void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTexture, SDL_Rect *su
             }
         }
     }
-
-    SDL_RenderPresent(pRenderer);
 }
 
 void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])

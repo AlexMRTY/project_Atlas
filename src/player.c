@@ -1,5 +1,5 @@
-#include "globalConst.h"
-#include "player.h"
+#include "headers/globalConst.h"
+#include "headers/player.h"
 
 Player initializePlayer(int *number_of_player, Player players[MAX_PLAYERS], UDPpacket *recieve)
 {

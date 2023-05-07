@@ -1,7 +1,7 @@
-#include "client.h"
-#include "player.h"
-#include "globalConst.h"
-#include "coins.h"
+#include "headers/client.h"
+#include "headers/player.h"
+#include "headers/globalConst.h"
+#include "headers/coins.h"
 
 int joinAccept(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement, int *isAlive)
 {
@@ -100,7 +100,7 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
         {
             coins[*numberOfCoins] = (Coins){{coinX, coinY, COINS_MAX_W, COINS_MAX_H}, isVisible, points, *numberOfCoins};
             (*numberOfCoins)++;
-            printf("coins_data is recieved\n");
+            // printf("coins_data is recieved\n");
         }
         else if (sscanf((char *)recieve->data, "coins_data %d %d %d %d %d", &coinX, &coinY, &isVisible, &points, &coinId) == 5)
         {

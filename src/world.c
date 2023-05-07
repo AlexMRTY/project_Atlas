@@ -1,4 +1,4 @@
-#include "world.h"
+#include "headers/world.h"
 
 static int TILE_ROWS = 32;
 static int TILE_COLUMNS = 32;
