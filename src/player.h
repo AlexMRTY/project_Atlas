@@ -21,5 +21,5 @@ void updateIsAlive(int id, int isAlive, int nrOfPlayers, Player players[]);
 Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player players[], int *number_of_player, int *isAlive);
 int playerExists(int *nrOfPlayers, Player players[], int *index, int lookUpId);
 bool isMonster(int id);
-bool isGameOver(Player me);
+int isGameOver(Player me);
 #endif

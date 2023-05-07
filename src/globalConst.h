@@ -23,4 +23,5 @@
 #define COINS_MAX_H 12
 #define COIN_FRAMES 8
 #define COIN_ANIMATION_DELAY 15
+
 #endif

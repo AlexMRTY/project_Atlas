@@ -26,7 +26,7 @@ bool collision(int dx, int dy)
     return getTileGrid(row, collumn) != 7;
 }
 
-bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos)
+bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos, Mix_Chunk *deathSound)
 {
     for (int i = 0; i < (*nrOfPlayers); i++)
     {
@@ -38,6 +38,7 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
                 if (isMonster(currentPlayer))
                 {
                     players[i].isAlive = 0;
+                    Mix_PlayChannel(-1, deathSound, 0);
                 }
 
                 return true;

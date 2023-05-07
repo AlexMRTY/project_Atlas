@@ -26,7 +26,7 @@ void transmitData(Player *me, UDPpacket *packet, UDPsocket *client_socket)
     sprintf((char *)packet->data, "%d %d %d %d %d %d", me->rect.x, me->rect.y, me->id, me->numberOfPoints, me->movement, me->isAlive);
     packet->len = strlen((char *)packet->data) + 1;
     SDLNet_UDP_Send(*client_socket, -1, packet);
-    printf("Sending Coins Data\n");
+    // printf("Sending Coins Data\n");
 }
 
 void transmitCoins(Coins coins[], int numberOfCoins, UDPpacket *packet, UDPsocket *client_socket, int update)
@@ -55,7 +55,7 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
     while (SDLNet_UDP_Recv(*client_socket, recieve))
     {
         // Prints the recieved player data to terminal.
-        printPlayerData(recieve);
+        // printPlayerData(recieve);
 
         // Temp
         int x, y, id, nrOfPoints, movement, isAlive, coinX, coinY, isVisible, points, coinId;
@@ -105,7 +105,7 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
         else if (sscanf((char *)recieve->data, "coins_data %d %d %d %d %d", &coinX, &coinY, &isVisible, &points, &coinId) == 5)
         {
             coins[coinId].isVisible = isVisible;
-            printf("coins_data has been updated\n");
+            // printf("coins_data has been updated\n");
         }
         // In case the recieved packet is not from our server.
         else

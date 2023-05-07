@@ -53,4 +53,4 @@ coins.o: $(SRCDIR)$(DIR_SEP)coins.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)coins.c	
 
 clean:
-	$(RM) *.o main server
+	$(RM) *.o *.exe main server

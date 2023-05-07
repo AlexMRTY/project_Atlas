@@ -68,10 +68,10 @@ bool isMonster(int id)
         */
 }
 
-bool isGameOver(Player me)
+int isGameOver(Player me)
 {
     if (me.isAlive == 0)
-        return true;
+        return 1;
     else
-        return false;
+        return 0;
 }
