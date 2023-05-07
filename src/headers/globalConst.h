@@ -25,5 +25,6 @@
 #define COIN_ANIMATION_DELAY 15
 
 #define NUMOFMENUOPTIONS 2
+#define GAMEMENUOPTIONS 2
 
 #endif
