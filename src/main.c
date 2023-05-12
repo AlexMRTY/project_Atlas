@@ -285,7 +285,8 @@ int main(int argv, char **args)
         SDL_Surface* timerSurface = TTF_RenderText_Solid(timerFont, timerText, textColor);
         SDL_Texture* timerTexture = SDL_CreateTextureFromSurface(pRenderer, timerSurface);
 
-        SDL_Rect timerRect = {10, 10, timerSurface->w, timerSurface->h};
+        //SDL_Rect timerRect = {10, 10, timerSurface->w, timerSurface->h};
+        SDL_Rect timerRect = {10, 10, timerSurface->w / 2, timerSurface->h / 2};  // Use smaller dimensions, e.g., divide by 2
 
         SDL_RenderCopy(pRenderer, timerTexture, NULL, &timerRect);
 
