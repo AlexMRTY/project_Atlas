@@ -214,6 +214,10 @@ int main(int argv, char **args)
 	// PLAY BACKGROUND MUSIC
     // Mix_PlayMusic(gameMusic, -1);
 
+    Uint32 startTime = SDL_GetTicks();  // Store the starting time of the game
+    TTF_Font* timerFont = TTF_OpenFont("resources/ka1.ttf", 40);  // Font for the timer text
+    SDL_Color textColor = {255, 0, 0};  // Red color for the timer text
+
     while (!quit && !isGameOver(me))
     {
         // Handle UDP packet recieved from Server.
@@ -264,6 +268,29 @@ int main(int argv, char **args)
 		if (escapePressed) {
 			pauseMenu(pRenderer, &escapePressed, &quit, font);
 		}
+
+        // Update timer
+        Uint32 currentTime = SDL_GetTicks();
+        Uint32 elapsedTime = currentTime - startTime;
+
+        // Calculate minutes and seconds
+        int minutes = (elapsedTime / 1000) / 60;
+        int seconds = (elapsedTime / 1000) % 60;
+
+        // Format the timer text
+        char timerText[20];
+        sprintf(timerText, "%02d:%02d", minutes, seconds);
+
+        // Render the timer text
+        SDL_Surface* timerSurface = TTF_RenderText_Solid(timerFont, timerText, textColor);
+        SDL_Texture* timerTexture = SDL_CreateTextureFromSurface(pRenderer, timerSurface);
+
+        SDL_Rect timerRect = {10, 10, timerSurface->w, timerSurface->h};
+
+        SDL_RenderCopy(pRenderer, timerTexture, NULL, &timerRect);
+
+        SDL_FreeSurface(timerSurface);
+        SDL_DestroyTexture(timerTexture);
 		// Render frame
 		SDL_RenderPresent(pRenderer);
 
