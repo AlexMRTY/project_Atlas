@@ -55,17 +55,10 @@ Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player
 
 bool isMonster(int id)
 {
-    // test
-    if (id == 1)
-        return false;
-    else
-        return true;
-    /*
     if (id <= 2)
         return false;
     else
         return true;
-        */
 }
 
 int isGameOver(Player me)
@@ -74,4 +67,23 @@ int isGameOver(Player me)
         return 1;
     else
         return 0;
+}
+
+int hasHighestScore(Player players[], int numberOfPlayers, Player me)
+{
+    int highestScoreId = -1;
+    for (int i = 0; i < numberOfPlayers; i++)
+    {
+        for (int j = 0; j < numberOfPlayers; j++)
+        {
+            if (players[i].numberOfPoints > players[i].numberOfPoints)
+            {
+                highestScoreId = players[i].id;
+            }
+        }
+    }
+    if (me.numberOfPoints > players[highestScoreId].numberOfPoints)
+        highestScoreId = me.id;
+
+    return highestScoreId;
 }

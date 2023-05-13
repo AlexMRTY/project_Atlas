@@ -4,12 +4,12 @@
 
 #include <stdbool.h>
 
-void startMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font *font)
+int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
 {
     int x, y;
-    const char *labels[GAMEMENUOPTIONS] = {"New Game", "Exit"};
+    const char *labels[GAMEMENUOPTIONS] = {"Start A New Game", "Exit"};
     SDL_Surface *menus[GAMEMENUOPTIONS];
-    int selected = 1;
+    int selected = 0;
     SDL_Color color[2] = {{255, 255, 255}, {255, 0, 0}};
     SDL_Rect pos[GAMEMENUOPTIONS];
 
@@ -76,7 +76,7 @@ void startMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
     SDL_Texture *temp1;
     SDL_Texture *temp2;
 
-    while ((*escapePressed) && !(*quit))
+    while (!(*quit))
     {
         SDL_PollEvent(&event);
 
@@ -86,18 +86,20 @@ void startMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
         {
         case SDLK_UP:
             selected = 1;
+            activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
             break;
         case SDLK_DOWN:
             selected = 2;
+            activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
             break;
         case SDLK_RETURN:
             if (selected == 1)
             {
-                (*escapePressed) = 0;
                 for (int i = 0; i < GAMEMENUOPTIONS; i++)
                 {
                     SDL_FreeSurface(menus[i]);
                 }
+                return selected;
             }
             else if (selected == 2)
             {
@@ -107,6 +109,21 @@ void startMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
         default:
             break;
         }
+        SDL_RenderClear(pRenderer);
+        activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
         SDL_RenderPresent(pRenderer);
     }
+    return selected;
+}
+
+void activeMenu(SDL_Renderer *pRenderer, SDL_Surface *menus[], SDL_Color color[], SDL_Rect pos[], SDL_Texture *temp1, SDL_Texture *temp2, TTF_Font *font, int selected)
+{
+    SDL_RenderClear(pRenderer);
+
+    menus[0] = TTF_RenderText_Solid(font, "Start New Game", color[selected == 1 ? 1 : 0]);
+    menus[1] = TTF_RenderText_Solid(font, "Exit", color[selected == 2 ? 1 : 0]);
+    temp1 = SDL_CreateTextureFromSurface(pRenderer, menus[0]);
+    temp2 = SDL_CreateTextureFromSurface(pRenderer, menus[1]);
+    SDL_RenderCopy(pRenderer, temp1, NULL, &pos[0]);
+    SDL_RenderCopy(pRenderer, temp2, NULL, &pos[1]);
 }

@@ -22,4 +22,5 @@ Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player
 int playerExists(int *nrOfPlayers, Player players[], int *index, int lookUpId);
 bool isMonster(int id);
 int isGameOver(Player me);
+int hasHighestScore(Player players[], int numberOfPlayers, Player me);
 #endif

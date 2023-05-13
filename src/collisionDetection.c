@@ -34,7 +34,6 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
         {
             if (SDL_HasIntersection(nextPos, &players[i].rect))
             {
-
                 if (isMonster(currentPlayer))
                 {
                     players[i].isAlive = 0;
