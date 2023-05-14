@@ -18,7 +18,8 @@
 #include "headers/pause.h"
 #include "headers/endgame.h"
 #include "headers/lobby.h"
-
+#include "headers/start.h"
+#include "headers/scoreList.h"
 
 int main(int argv, char **args)
 {
@@ -122,17 +123,6 @@ int main(int argv, char **args)
     packet->address.host = server_address.host;
     packet->address.port = server_address.port;
 
-	// Send request
-    strcpy((char *)packet->data, "join_request");
-    packet->len = strlen((char *)packet->data) + 1;
-    SDLNet_UDP_Send(client_socket, -1, packet);
-
-    strcpy((char *)packet->data, "coins_request");
-    packet->len = strlen((char *)packet->data) + 1;
-    SDLNet_UDP_Send(client_socket, -1, packet);
-    bool joinedServer = false;
-
-    printf("Request Send\n");
 
 	///**********************GRAPHICS****************************///
 
@@ -207,6 +197,23 @@ int main(int argv, char **args)
 
     // BACKGROUND
     SDL_Texture *tTiles = NULL;
+    
+    if (startMenu(pRenderer, &quit, font))
+    {
+    // TEST
+    ScoreListMenu(pRenderer, &quit, font);
+	// Send request
+    strcpy((char *)packet->data, "join_request");
+    packet->len = strlen((char *)packet->data) + 1;
+    SDLNet_UDP_Send(client_socket, -1, packet);
+
+    strcpy((char *)packet->data, "coins_request");
+    packet->len = strlen((char *)packet->data) + 1;
+    SDLNet_UDP_Send(client_socket, -1, packet);
+    bool joinedServer = false;
+
+    printf("Request Send\n");
+
     loadTiles(pRenderer, &tTiles, gTiles);
 	
 	loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
@@ -320,6 +327,9 @@ int main(int argv, char **args)
 		frame++;
         
     }
+    }
+    
+    
     //Shutdown SDL
     Mix_HaltMusic();
     Mix_FreeMusic(gameMusic);
