@@ -17,7 +17,6 @@
 #include "headers/player.h"
 #include "headers/pause.h"
 #include "headers/start.h"
-#include "headers/scoreList.h"
 
 int main(int argv, char **args)
 {
@@ -271,7 +270,8 @@ int main(int argv, char **args)
             // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me, ppTexture);
 
-            renderScoreList(font, pRenderer, players, number_of_player);
+            // TEST
+            renderScoreList(font, pRenderer, players, &me, number_of_player);
 
             if (escapePressed)
             {

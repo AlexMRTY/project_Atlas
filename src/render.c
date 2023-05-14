@@ -151,7 +151,7 @@ void renderCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[],
     }
 }
 
-void renderScoreList(TTF_Font *font, SDL_Renderer *renderer, Player players[], int numPlayers)
+void renderScoreList(TTF_Font *font, SDL_Renderer *renderer, Player players[], Player *me, int numPlayers)
 {
     SDL_Color textColor = {255, 255, 255, 255}; // white text
     SDL_Surface *surfaceMessage = NULL;
@@ -173,9 +173,18 @@ void renderScoreList(TTF_Font *font, SDL_Renderer *renderer, Player players[], i
     // Render the score list as text
     for (int i = 0; i < numPlayers; i++)
     {
-        sprintf(text, "Player %d: %d", i + 1, players[i].numberOfPoints);
-        surfaceMessage = TTF_RenderText_Solid(font, text, textColor);
-        message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+        if (i == me->id)
+        {
+            sprintf(text, "You: %d", me->numberOfPoints);
+            surfaceMessage = TTF_RenderText_Solid(font, text, textColor);
+            message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+        }
+        else
+        {
+            sprintf(text, "Player %d: %d", i + 1, players[i].numberOfPoints);
+            surfaceMessage = TTF_RenderText_Solid(font, text, textColor);
+            message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+        }
 
         // Calculate the position to center the text within the backgroundRect
         SDL_Rect textRect = {0, 0, surfaceMessage->w, surfaceMessage->h};

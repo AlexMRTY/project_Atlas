@@ -11,6 +11,6 @@ void loadTiles(SDL_Renderer *gRenderer, SDL_Texture **mTiles, SDL_Rect gTiles[])
 void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me, SDL_Texture *ppTexture);
 void loadCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int *numCoins, SDL_Rect gCoins[]);
 void renderCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[], int numCoins, SDL_Rect gCoins[], int frame);
-void renderScoreList(TTF_Font *font, SDL_Renderer *renderer, Player players[], int numPlayers);
+void renderScoreList(TTF_Font *font, SDL_Renderer *renderer, Player players[], Player *me, int numPlayers);
 
 #endif
