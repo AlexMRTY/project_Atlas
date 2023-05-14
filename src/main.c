@@ -77,6 +77,17 @@ int main(int argv, char **args)
     {
         printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
     }
+    Mix_Chunk *keyPressed = Mix_LoadWAV("resources/interface-124464.mp3");
+    if (music == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
+
+    Mix_Chunk *selectSound = Mix_LoadWAV("resources/beep-6-96243.mp3");
+    if (music == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
 
     Mix_Music *gameMusic = Mix_LoadMUS("resources/background.mp3");
     if (gameMusic == NULL)
@@ -186,10 +197,10 @@ int main(int argv, char **args)
     // BACKGROUND
     SDL_Texture *tTiles = NULL;
 
-    if (startMenu(pRenderer, &quit, font) == 1)
+    if (startMenu(pRenderer, &quit, font, keyPressed, selectSound) == 1)
     {
         // TEST
-        ScoreListMenu(pRenderer, &quit, font);
+        // display_score_list(pRenderer, font);
         // Send request
         strcpy((char *)packet->data, "join_request");
         packet->len = strlen((char *)packet->data) + 1;
@@ -260,9 +271,11 @@ int main(int argv, char **args)
             // Render all players
             renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me, ppTexture);
 
+            renderScoreList(font, pRenderer, players, number_of_player);
+
             if (escapePressed)
             {
-                pauseMenu(pRenderer, &escapePressed, &quit, font);
+                pauseMenu(pRenderer, &escapePressed, &quit, font, keyPressed, selectSound);
             }
             // Render frame
             SDL_RenderPresent(pRenderer);

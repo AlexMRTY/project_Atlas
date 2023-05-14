@@ -35,5 +35,9 @@
   ],
   "C_Cpp_Runner.useAddressSanitizer": false,
   "C_Cpp.errorSquiggles": "disabled",
-  "C_Cpp_Runner.showCompilationTime": false
+  "C_Cpp_Runner.showCompilationTime": false,
+  "files.associations": {
+    "sdl_image.h": "c",
+    "sdl_ttf.h": "c"
+  }
 }

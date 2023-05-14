@@ -1,8 +1,9 @@
 #include "headers/pause.h"
 #include <SDL2/SDL_ttf.h>
+#include "SDL2/SDL_mixer.h"
 #include "headers/globalConst.h"
 
-void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font *font)
+void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font *font, Mix_Chunk *keyPressed, Mix_Chunk *selectSound)
 {
     int x, y;
     const char *labels[NUMOFMENUOPTIONS] = {"Continue", "Exit"};
@@ -85,13 +86,15 @@ void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
         case SDLK_UP:
             selected = 1;
             activeOption(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+            Mix_PlayChannel(-1, keyPressed, 0);
             break;
         case SDLK_DOWN:
             selected = 2;
             activeOption(pRenderer, menus, color, pos, temp1, temp2, font, selected);
-
+            Mix_PlayChannel(-1, keyPressed, 0);
             break;
         case SDLK_RETURN:
+            Mix_PlayChannel(-1, selectSound, 0);
             if (selected == 1)
             {
                 (*escapePressed) = 0;
@@ -104,6 +107,10 @@ void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
             {
                 *quit = true;
             }
+            break;
+        case SDL_KEYUP:
+            Mix_FreeChunk(keyPressed);
+            Mix_FreeChunk(selectSound);
             break;
         default:
             break;

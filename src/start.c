@@ -1,10 +1,11 @@
 #include "headers/start.h"
 #include <SDL2/SDL_ttf.h>
+#include "SDL2/SDL_mixer.h"
 #include "headers/globalConst.h"
 
 #include <stdbool.h>
 
-int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
+int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, Mix_Chunk *keyPressed, Mix_Chunk *selectSound)
 {
     int x, y;
     const char *labels[GAMEMENUOPTIONS] = {"Start A New Game", "Exit"};
@@ -87,12 +88,15 @@ int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
         case SDLK_UP:
             selected = 1;
             activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+            Mix_PlayChannel(-1, keyPressed, 0);
             break;
         case SDLK_DOWN:
             selected = 2;
             activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+            Mix_PlayChannel(-1, keyPressed, 0);
             break;
         case SDLK_RETURN:
+            Mix_PlayChannel(-1, selectSound, 0);
             if (selected == 1)
             {
                 for (int i = 0; i < GAMEMENUOPTIONS; i++)
@@ -105,6 +109,10 @@ int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
             {
                 *quit = true;
             }
+            break;
+        case SDL_KEYUP:
+            Mix_FreeChunk(keyPressed);
+            Mix_FreeChunk(selectSound);
             break;
         default:
             break;

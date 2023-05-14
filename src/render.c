@@ -3,6 +3,7 @@
 #include "headers/coins.h"
 #include "headers/globalConst.h"
 #include "headers/player.h"
+#include <SDL2/SDL_ttf.h>
 
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[])
 {
@@ -25,7 +26,6 @@ void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[])
 
 void renderPlayers(SDL_Renderer *pRenderer, SDL_Texture **pTexture, SDL_Rect *subtextures, int num_subtextures, Player *players, int num_players, Player me, SDL_Texture *ppTexture)
 {
-    
 
     // Change current subtexture based on player movement
     SDL_Rect currentSubtexture;
@@ -148,5 +148,44 @@ void renderCoins(SDL_Renderer *pRenderer, SDL_Texture **pTexture, Coins coins[],
             SDL_Rect coinFrame = gCoins[frameIndex];
             SDL_RenderCopy(pRenderer, *pTexture, &coinFrame, &coin->coin);
         }
+    }
+}
+
+void renderScoreList(TTF_Font *font, SDL_Renderer *renderer, Player players[], int numPlayers)
+{
+    SDL_Color textColor = {255, 255, 255, 255}; // white text
+    SDL_Surface *surfaceMessage = NULL;
+    SDL_Texture *message = NULL;
+    char text[100];
+
+    // Define the background as a list
+    SDL_Rect backgroundRect = {0, 0, 400, 400}; // Background size is 400x400
+    SDL_Color backgroundColor = {0, 0, 0, 255}; // black background
+
+    // Center the backgroundRect in the middle of the screen
+    backgroundRect.x = (WINDOW_WIDTH - backgroundRect.w) / 2;
+    backgroundRect.y = (WINDOW_HEIGHT - backgroundRect.h) / 2;
+
+    // Fill the background with the specified color
+    SDL_SetRenderDrawColor(renderer, backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+    SDL_RenderFillRect(renderer, &backgroundRect);
+
+    // Render the score list as text
+    for (int i = 0; i < numPlayers; i++)
+    {
+        sprintf(text, "Player %d: %d", i + 1, players[i].numberOfPoints);
+        surfaceMessage = TTF_RenderText_Solid(font, text, textColor);
+        message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+        // Calculate the position to center the text within the backgroundRect
+        SDL_Rect textRect = {0, 0, surfaceMessage->w, surfaceMessage->h};
+        SDL_Rect centeredRect = {backgroundRect.x + (backgroundRect.w - surfaceMessage->w) / 2,
+                                 backgroundRect.y + (backgroundRect.h - surfaceMessage->h) / 2 + i * 40,
+                                 surfaceMessage->w, surfaceMessage->h};
+        SDL_RenderCopy(renderer, message, &textRect, &centeredRect);
+
+        // Clean up
+        SDL_FreeSurface(surfaceMessage);
+        SDL_DestroyTexture(message);
     }
 }
