@@ -32,15 +32,13 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
     {
         if (players[i].id != currentPlayer)
         {
-            if (SDL_HasIntersection(nextPos, &players[i].rect))
+            if (SDL_HasIntersection(nextPos, &players[i].rect) && players[i].isAlive)
             {
-
                 if (isMonster(currentPlayer))
                 {
                     players[i].isAlive = 0;
                     Mix_PlayChannel(-1, deathSound, 0);
                 }
-
                 return true;
             }
         }

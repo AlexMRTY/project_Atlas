@@ -19,7 +19,7 @@ endif
 CC=gcc
 CFLAGS = -g -c $(INCLUDE)
 
-MAINDEPENDENCIES=main.o world.o collisionDetection.o events.o render.o client.o player.o pause.o
+MAINDEPENDENCIES=main.o world.o collisionDetection.o events.o render.o client.o player.o pause.o endgame.o lobby.o
 SERVERDEPENDENCIES=server.o world.o player.o collisionDetection.o coins.o
 
 all: main server
@@ -61,5 +61,11 @@ coins.o: $(SRCDIR)$(DIR_SEP)coins.c
 pause.o: $(SRCDIR)$(DIR_SEP)pause.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)pause.c	
 
+endgame.o: $(SRCDIR)$(DIR_SEP)endgame.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)endgame.c	
+
+lobby.o: $(SRCDIR)$(DIR_SEP)lobby.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)lobby.c	
+
 clean:
-	$(RM) *.exe main server
+	$(RM) *.o *.exe main server

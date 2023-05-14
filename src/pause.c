@@ -1,6 +1,8 @@
 #include "headers/pause.h"
 #include <SDL2/SDL_ttf.h>
 #include "headers/globalConst.h"
+#include "headers/render.h"
+
 
 void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font* font)
 {
@@ -12,29 +14,7 @@ void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
     SDL_Rect pos[NUMOFMENUOPTIONS];
  
     // Backdrop
-    SDL_Rect menuRect;
-	menuRect.x = 0;
-	menuRect.y = 0;
-	menuRect.w = WINDOW_WIDTH;
-	menuRect.h = WINDOW_HEIGHT;	
-    
-	SDL_Surface* overlaySurface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
-    if (overlaySurface == NULL) {
-        printf("Failed to create RGB surface: %s\n", SDL_GetError());
-    }
-
-	int fillRect = SDL_FillRect(overlaySurface, NULL, SDL_MapRGBA(overlaySurface->format, 0, 0, 0, 128));
-    if (fillRect < 0) {
-        printf("Failed to fill Rect: %d", fillRect);
-    }
-    
-    
-	SDL_Texture* overlayTexture = SDL_CreateTextureFromSurface(pRenderer, overlaySurface);
-    if (overlayTexture == NULL) {
-        printf("Failed to create texture from surface 1: %s\n", SDL_GetError());
-    }
-    
-    SDL_RenderCopy(pRenderer, overlayTexture, NULL, &menuRect);
+    renderMenuBackdrop(pRenderer);
 
     // Menu
     menus[0] = TTF_RenderText_Solid(font,labels[0],color[1]);

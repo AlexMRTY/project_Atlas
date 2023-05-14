@@ -4,6 +4,34 @@
 #include "headers/globalConst.h"
 #include "headers/player.h"
 
+void renderMenuBackdrop(SDL_Renderer *pRenderer) {
+    // Backdrop
+    SDL_Rect menuRect;
+	menuRect.x = 0;
+	menuRect.y = 0;
+	menuRect.w = WINDOW_WIDTH;
+	menuRect.h = WINDOW_HEIGHT;	
+    
+	SDL_Surface* overlaySurface = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0, 0, 0, 0);
+    if (overlaySurface == NULL) {
+        printf("Failed to create RGB surface: %s\n", SDL_GetError());
+    }
+
+	int fillRect = SDL_FillRect(overlaySurface, NULL, SDL_MapRGBA(overlaySurface->format, 0, 0, 0, 128));
+    if (fillRect < 0) {
+        printf("Failed to fill Rect: %d", fillRect);
+    }
+    
+	SDL_Texture* overlayTexture = SDL_CreateTextureFromSurface(pRenderer, overlaySurface);
+    if (overlayTexture == NULL) {
+        printf("Failed to create texture from surface 1: %s\n", SDL_GetError());
+    }
+    
+    SDL_RenderCopy(pRenderer, overlayTexture, NULL, &menuRect);
+    SDL_FreeSurface(overlaySurface);
+    SDL_DestroyTexture(overlayTexture);
+}
+
 void renderMap(SDL_Renderer *gRenderer, SDL_Texture *mTiles, SDL_Rect gTiles[])
 {
     SDL_Rect position;

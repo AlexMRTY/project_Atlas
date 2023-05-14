@@ -3,9 +3,10 @@
 #include "headers/collisionDetection.h"
 #include "headers/events.h"
 #include "headers/coins.h"
+#include "headers/player.h"
 
 
-void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers, int *numberOfPoints, Coins coins[], Mix_Chunk *coinsSound, int *update, Mix_Chunk *deathSound, int *escapePressed)
+void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, Player players[], int currentPlayer, int *nrOfPlayers, int *numberOfPoints, Coins coins[], Mix_Chunk *coinsSound, int *update, Mix_Chunk *deathSound, int *escapePressed, int isAlive)
 {
 
     SDL_Event event;
@@ -15,7 +16,10 @@ void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, P
         // printf("pollevent: %d", SDL_PollEvent(&event));
         *quit = handleQuit(&event);
 
-        transformCharacter(&event, rect, movement, music, players, currentPlayer, nrOfPlayers, numberOfPoints, coins, coinsSound, update, deathSound, escapePressed);
+        if (isAlive)
+        {
+            transformCharacter(&event, rect, movement, music, players, currentPlayer, nrOfPlayers, numberOfPoints, coins, coinsSound, update, deathSound, escapePressed);
+        }
     }
 }
 

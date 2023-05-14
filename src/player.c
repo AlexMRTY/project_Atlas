@@ -56,16 +56,15 @@ Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player
 bool isMonster(int id)
 {
     // test
-    if (id == 1)
+    // if (id == 1)
+    //     return false;
+    // else
+    //     return true;
+    if (id == 2)
         return false;
     else
         return true;
-    /*
-    if (id <= 2)
-        return false;
-    else
-        return true;
-        */
+        
 }
 
 int isGameOver(Player me)

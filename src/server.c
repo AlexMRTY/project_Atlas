@@ -70,6 +70,7 @@ int main(int argc, char **argv)
             {
                 Player player = initializePlayer(&number_of_players, players, recieve);
                 printf("Player joined with ID %d\n", player.id);
+                printf("Number of players> %d\n", number_of_players);
 
                 packet->address.host = player.address.host;
                 packet->address.port = player.address.port;
@@ -97,7 +98,7 @@ int main(int argc, char **argv)
                     sprintf((char *)update_packet->data, "coins_data %d %d %d %d %d", coins[coinId].coin.x, coins[coinId].coin.y, coins[coinId].isVisible, coins[coinId].points, coins[coinId].id);
                     update_packet->len = strlen((char *)update_packet->data) + 1;
                     SDLNet_UDP_Send(server_socket, -1, update_packet);
-                    printf("Sending Coins data to player %d\n", players[i].id);
+                    // printf("Sending Coins data to player %d\n", players[i].id);
 
                     SDLNet_FreePacket(update_packet);
                 }
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
                     update_packet->len = strlen((char *)update_packet->data) + 1;
 
                     SDLNet_UDP_Send(server_socket, -1, update_packet);
-                    printf("Sending Coins data to player \n");
+                    // printf("Sending Coins data to player \n");
                 }
 
                 SDLNet_FreePacket(update_packet);
@@ -150,7 +151,7 @@ int main(int argc, char **argv)
                         update_packet->len = strlen((char *)update_packet->data) + 1;
 
                         SDLNet_UDP_Send(server_socket, -1, update_packet);
-                        printf("Sending data to player %d\n", players[i].id);
+                        // printf("Sending data to player %d\n", players[i].id);
                         //   }
                     }
                     SDLNet_FreePacket(update_packet);

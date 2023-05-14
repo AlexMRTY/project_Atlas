@@ -16,6 +16,9 @@
 #include "headers/coins.h"
 #include "headers/player.h"
 #include "headers/pause.h"
+#include "headers/endgame.h"
+#include "headers/lobby.h"
+
 
 int main(int argv, char **args)
 {
@@ -160,6 +163,10 @@ int main(int argv, char **args)
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
 
+    // Timer variables
+    int minutes, seconds;
+    char timerText[20];
+
 
     ///******RECTS************************///
     SDL_Rect gTiles[8];
@@ -201,10 +208,6 @@ int main(int argv, char **args)
     // BACKGROUND
     SDL_Texture *tTiles = NULL;
     loadTiles(pRenderer, &tTiles, gTiles);
-
-	
-
-    
 	
 	loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
 
@@ -218,11 +221,33 @@ int main(int argv, char **args)
     TTF_Font* timerFont = TTF_OpenFont("resources/ka1.ttf", 40);  // Font for the timer text
     SDL_Color textColor = {255, 0, 0};  // Red color for the timer text
 
-    while (!quit && !isGameOver(me))
+    while (!quit)
     {
+        SDL_Delay(1000/60);
         // Handle UDP packet recieved from Server.
         HandleUDPRecv(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer, coins, &numCoins);
+
         if (!joinedServer) break;
+
+		// Handles quit and movement events
+		handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update, deathSound, &escapePressed, me.isAlive);
+
+		// Transmit cordinates data to server
+		transmitData(&me, packet, &client_socket);
+
+        // printf("////////////////////////////////////\n");
+        // printf("Number of players: %d\n", number_of_player);
+        // for (int i=0 ; i<number_of_player ; i++) {
+        //     printf("I am player number %d and isAlive > %d\n", players[i].id, players[i].isAlive);
+        // }
+        
+        // Lobby
+        if (number_of_player <= 3)
+        {
+            waitingForPlayers(pRenderer, font, number_of_player);
+            continue;
+        }
+        
         
 		long long int tick = SDL_GetTicks();
 		nrOfFPS++;
@@ -237,12 +262,6 @@ int main(int argv, char **args)
 			startingTick = tick; // resetting fps ctr;
 			nrOfFPS = 0;
 		}
-
-		// Handles quit and movement events
-		handleEvents(&me.rect, &me.movement, &quit, music, players, me.id, &number_of_player, &me.numberOfPoints, coins, coinsSound, &update, deathSound, &escapePressed);
-
-		// Transmit cordinates data to server
-		transmitData(&me, packet, &client_socket);
 
 		// Transmit coins data to server
 		transmitCoins(coins, numCoins, packet, &client_socket, update);
@@ -265,6 +284,11 @@ int main(int argv, char **args)
 		// Render all players
 		renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, number_of_player, me, ppTexture);
 
+        // TESTING GAMEOVER/VICTORY
+        // if (seconds > 5) {
+        //     endGame(pRenderer, font, 1);
+        // }
+
 		if (escapePressed) {
 			pauseMenu(pRenderer, &escapePressed, &quit, font);
 		}
@@ -274,11 +298,10 @@ int main(int argv, char **args)
         Uint32 elapsedTime = currentTime - startTime;
 
         // Calculate minutes and seconds
-        int minutes = (elapsedTime / 1000) / 60;
-        int seconds = (elapsedTime / 1000) % 60;
+        minutes = (elapsedTime / 1000) / 60;
+        seconds = (elapsedTime / 1000) % 60;
 
         // Format the timer text
-        char timerText[20];
         sprintf(timerText, "%02d:%02d", minutes, seconds);
 
         // Render the timer text
@@ -287,18 +310,17 @@ int main(int argv, char **args)
 
         //SDL_Rect timerRect = {10, 10, timerSurface->w, timerSurface->h};
         SDL_Rect timerRect = {10, 10, timerSurface->w / 2, timerSurface->h / 2};  // Use smaller dimensions, e.g., divide by 2
-
         SDL_RenderCopy(pRenderer, timerTexture, NULL, &timerRect);
 
         SDL_FreeSurface(timerSurface);
         SDL_DestroyTexture(timerTexture);
 		// Render frame
-		SDL_RenderPresent(pRenderer);
+		SDL_RenderPresent(pRenderer); 
 
 		frame++;
         
     }
-    //   Shutdown SDL
+    //Shutdown SDL
     Mix_HaltMusic();
     Mix_FreeMusic(gameMusic);
     Mix_CloseAudio();
@@ -307,8 +329,8 @@ int main(int argv, char **args)
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(client_socket);
     SDLNet_Quit();
-    TTF_CloseFont(font); // new code
-    TTF_Quit(); // new code
+    TTF_CloseFont(font);
+    TTF_Quit(); 
     SDL_Quit();
 
     return 0;
