@@ -1,6 +1,8 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "headers/globalConst.h"
 #include "SDL2/SDL.h"
@@ -40,6 +42,11 @@ int main(int argc, char **argv)
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
 
+
+    // Generate a random number between 0 and 3
+    srand(time(NULL));
+    int choosenHunter = rand() % 4;
+
     initializeCoins(coins, &numberOfCoins);
 
     printf("number of coins: %d\n", numberOfCoins);
@@ -55,7 +62,7 @@ int main(int argc, char **argv)
             if (nrOfFPS % 30 == 0) // every 30fps
             {
                 float avgFPS = (float)nrOfFPS / ((tick - startingTick) / 1000.f);
-                printf("avg fps: %.2f\n", avgFPS);
+                // printf("avg fps: %.2f\n", avgFPS);
             }
             if (nrOfFPS % 150 == 0)
             {
@@ -68,13 +75,15 @@ int main(int argc, char **argv)
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
             {
-                Player player = initializePlayer(&number_of_players, players, recieve);
+                Player player = initializePlayer(&number_of_players, players, recieve, choosenHunter);
                 printf("Player joined with ID %d\n", player.id);
                 printf("Number of players> %d\n", number_of_players);
+                printf("Hunter is > %d\n", choosenHunter);
+
 
                 packet->address.host = player.address.host;
                 packet->address.port = player.address.port;
-                sprintf((char *)packet->data, "join_accept %d %d %d %d %d %d", player.rect.x, player.rect.y, player.id, player.numberOfPoints, player.movement, player.isAlive);
+                sprintf((char *)packet->data, "join_accept %d %d %d %d %d %d %d", player.rect.x, player.rect.y, player.id, player.numberOfPoints, player.movement, player.isAlive, player.isHunter);
                 packet->len = strlen((char *)packet->data) + 1;
                 SDLNet_UDP_Send(server_socket, -1, packet);
             }
@@ -86,7 +95,7 @@ int main(int argc, char **argv)
                     if (coins[j].id == coinId)
                     {
                         updateCoins(coins, coinId, isVisible);
-                        printf("Updating Coins!\n");
+                        // printf("Updating Coins!\n");
                     }
                 }
                 for (int i = 0; i < number_of_players; i++)
@@ -119,9 +128,9 @@ int main(int argc, char **argv)
 
                 SDLNet_FreePacket(update_packet);
             }
-            else if (sscanf((char *)recieve->data, "new kill %d %d", &killId, &killIsAlive) == 2)
+            else if (sscanf((char *)recieve->data, "new kill %d", &killId) == 1)
             {
-                updateIsAlive(killId, killIsAlive, number_of_players, players);
+                updateIsAlive(killId, number_of_players, players);
                 printf("new kill...\n");
             }
 
@@ -147,7 +156,7 @@ int main(int argc, char **argv)
                     {
                         //     if (i != j)
                         //    {
-                        sprintf((char *)update_packet->data, "player_data %d %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement, players[j].isAlive);
+                        sprintf((char *)update_packet->data, "player_data %d %d %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement, players[j].isAlive, players[j].isHunter);
                         update_packet->len = strlen((char *)update_packet->data) + 1;
 
                         SDLNet_UDP_Send(server_socket, -1, update_packet);

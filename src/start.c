@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
+void displayStartMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState)
 {
     int x, y;
     const char *labels[GAMEMENUOPTIONS] = {"Start A New Game", "Exit"};
@@ -99,7 +99,9 @@ int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
                 {
                     SDL_FreeSurface(menus[i]);
                 }
-                return selected;
+                // return selected;
+                (*gameState) = 2;
+                return;
             }
             else if (selected == 2)
             {
@@ -113,7 +115,7 @@ int startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font)
         activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
         SDL_RenderPresent(pRenderer);
     }
-    return selected;
+    // return selected;
 }
 
 void activeMenu(SDL_Renderer *pRenderer, SDL_Surface *menus[], SDL_Color color[], SDL_Rect pos[], SDL_Texture *temp1, SDL_Texture *temp2, TTF_Font *font, int selected)

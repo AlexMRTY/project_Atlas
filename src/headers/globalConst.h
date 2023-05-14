@@ -26,4 +26,11 @@
 
 #define NUMOFMENUOPTIONS 2
 #define GAMEMENUOPTIONS 2
+
+#define START_MENU 1
+#define LOBBY 2
+#define PLAY_GAME 3
+#define PAUSE_MENU 4
+#define LEADERBOARDS 5
+
 #endif

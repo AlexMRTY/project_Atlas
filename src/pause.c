@@ -4,7 +4,7 @@
 #include "headers/render.h"
 
 
-void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font* font)
+void pauseMenu(SDL_Renderer *pRenderer, int *gameState, bool *quit, TTF_Font* font)
 {
     int x, y;
     const char* labels[NUMOFMENUOPTIONS] = {"Continue","Exit"};
@@ -51,7 +51,7 @@ void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
     SDL_Texture* temp1;
     SDL_Texture* temp2;
 
-    while ((*escapePressed) && !(*quit)) {
+    while ((*gameState)==4 && !(*quit)) {
         SDL_PollEvent(&event);
 
         *quit = event.type == SDL_QUIT ? true : false;
@@ -69,7 +69,7 @@ void pauseMenu(SDL_Renderer *pRenderer, int *escapePressed, bool *quit, TTF_Font
                 break;
             case SDLK_RETURN:
                 if (selected == 1) {
-                    (*escapePressed) = 0;
+                    (*gameState) = 3;
                     for (int i=0 ; i<NUMOFMENUOPTIONS ; i++) {
                         SDL_FreeSurface(menus[i]);
                     }

@@ -26,7 +26,7 @@ bool collision(int dx, int dy)
     return getTileGrid(row, collumn) != 7;
 }
 
-bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos, Mix_Chunk *deathSound)
+bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, SDL_Rect *nextPos, Mix_Chunk *deathSound, UDPpacket *packet, UDPsocket *client_socket)
 {
     for (int i = 0; i < (*nrOfPlayers); i++)
     {
@@ -34,9 +34,10 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
         {
             if (SDL_HasIntersection(nextPos, &players[i].rect) && players[i].isAlive)
             {
-                if (isMonster(currentPlayer))
+                if (players[currentPlayer].isHunter)
                 {
-                    players[i].isAlive = 0;
+                    transmittDiedPlayer(packet, client_socket, players[i].id, *nrOfPlayers);
+
                     Mix_PlayChannel(-1, deathSound, 0);
                 }
                 return true;

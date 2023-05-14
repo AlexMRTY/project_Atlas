@@ -3,14 +3,14 @@
 #include "headers/globalConst.h"
 #include "headers/coins.h"
 
-int joinAccept(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement, int *isAlive)
+int joinAccept(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement, int *isAlive, int *isHunter)
 {
-    return sscanf((char *)recieve->data, "join_accept %d %d %d %d %d %d", x, y, id, nrOfPoints, movement, isAlive);
+    return sscanf((char *)recieve->data, "join_accept %d %d %d %d %d %d %d", x, y, id, nrOfPoints, movement, isAlive, isHunter);
 }
 
-int recievePlayerData(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement, int *isAlive)
+int recievePlayerData(UDPpacket *recieve, int *x, int *y, int *id, int *nrOfPoints, int *movement, int *isAlive, int *isHunter)
 {
-    return sscanf((char *)recieve->data, "player_data %d %d %d %d %d %d", x, y, id, nrOfPoints, movement, isAlive);
+    return sscanf((char *)recieve->data, "player_data %d %d %d %d %d %d %d", x, y, id, nrOfPoints, movement, isAlive, isHunter);
 }
 
 void printPlayerData(UDPpacket *recieve)
@@ -36,17 +36,20 @@ void transmitCoins(Coins coins[], int numberOfCoins, UDPpacket *packet, UDPsocke
     SDLNet_UDP_Send(*client_socket, -1, packet);
 }
 
-void transmittDiedPlayer(UDPpacket *packet, UDPsocket *client_socket, Player player[], int numberOfPlayers)
+void transmittDiedPlayer(UDPpacket *packet, UDPsocket *client_socket, int id, int numberOfPlayers)
 {
-    for (int i = 0; i < numberOfPlayers; i++)
-    {
-        if (player[i].isAlive == 0)
-        {
-            sprintf((char *)packet->data, "new kill %d %d", player[i].id, player[i].isAlive);
-            packet->len = strlen((char *)packet->data) + 1;
-            SDLNet_UDP_Send(*client_socket, -1, packet);
-        }
-    }
+    sprintf((char *)packet->data, "new kill %d", id);
+    packet->len = strlen((char *)packet->data) + 1;
+    SDLNet_UDP_Send(*client_socket, -1, packet);
+    // for (int i = 0; i < numberOfPlayers; i++)
+    // {
+    //     if (player[i].isAlive == 0)
+    //     {
+    //         sprintf((char *)packet->data, "new kill %d %d", player[i].id, player[i].isAlive);
+    //         packet->len = strlen((char *)packet->data) + 1;
+    //         SDLNet_UDP_Send(*client_socket, -1, packet);
+    //     }
+    // }
 }
 
 void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numberOfCoins)
@@ -58,20 +61,20 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
         // printPlayerData(recieve);
 
         // Temp
-        int x, y, id, nrOfPoints, movement, isAlive, coinX, coinY, isVisible, points, coinId;
-        int x2, y2, id2, nrOfPoints_2, movement_2, isAlive_2;
+        int x, y, id, nrOfPoints, movement, isAlive, coinX, coinY, isVisible, points, coinId, isHunter;
+        int x2, y2, id2, nrOfPoints_2, movement_2, isAlive_2, isHunter_2;
 
         // If not joined yet, join. And read data.
         if (!(*joinedServer) &&
-            joinAccept(recieve, &x, &y, &id, &nrOfPoints, &movement, &isAlive) == 6 &&
+            joinAccept(recieve, &x, &y, &id, &nrOfPoints, &movement, &isAlive, &isHunter) == 7 &&
             *number_of_player <= MAX_PLAYERS)
         {
             printf("Joined server!\n");
-            *me = addPlayer(&id, &x, &y, &nrOfPoints, &movement, players, number_of_player, &isAlive);
+            *me = addPlayer(&id, &x, &y, &nrOfPoints, &movement, players, number_of_player, &isAlive, &isHunter);
             *joinedServer = true;
         }
         // If joined read player data.
-        else if (recievePlayerData(recieve, &x2, &y2, &id2, &nrOfPoints_2, &movement_2, &isAlive_2) == 6)
+        else if (recievePlayerData(recieve, &x2, &y2, &id2, &nrOfPoints_2, &movement_2, &isAlive_2, &isHunter_2) == 7)
         {
             int index = -1;
             if (*number_of_player <= MAX_PLAYERS)
@@ -82,7 +85,7 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
                 // If not, add player
                 if (!found)
                 {
-                    addPlayer(&id2, &x2, &y2, &nrOfPoints_2, &movement_2, players, number_of_player, &isAlive_2);
+                    addPlayer(&id2, &x2, &y2, &nrOfPoints_2, &movement_2, players, number_of_player, &isAlive_2, &isHunter_2);
                     printf("Added player with ID %d\n", id2);
                 }
                 else if (id2 == me->id)

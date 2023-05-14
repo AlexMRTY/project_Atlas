@@ -1,9 +1,11 @@
 #include "headers/globalConst.h"
 #include "headers/player.h"
 
-Player initializePlayer(int *number_of_player, Player players[MAX_PLAYERS], UDPpacket *recieve)
+
+Player initializePlayer(int *number_of_player, Player players[MAX_PLAYERS], UDPpacket *recieve, int choosenOne)
 {
-    Player player = {(*number_of_player), {(50 + ((*number_of_player) * 50)), 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 1, 1, recieve->address};
+    Player player = {(*number_of_player), {(50 + ((*number_of_player) * 50)), 50, PLAYER_WIDTH, PLAYER_HIGHT}, 0, 1, 1, 0, recieve->address};
+    player.isHunter = player.id == choosenOne ? 1 : 0;
     players[*number_of_player] = player;
     (*number_of_player)++;
     return player;
@@ -23,12 +25,12 @@ void updateMe(int isAlive, Player *me)
     me->isAlive = isAlive;
 }
 
-void updateIsAlive(int id, int isAlive, int nrOfPlayers, Player players[])
+void updateIsAlive(int id, int nrOfPlayers, Player players[])
 {
     for (int i = 0; i < nrOfPlayers; i++)
     {
         if (players[i].id == id)
-            players[i].isAlive = isAlive;
+            players[i].isAlive = 0;
     }
 }
 
@@ -45,9 +47,9 @@ int playerExists(int *nrOfPlayers, Player players[], int *index, int lookUpId)
     return 0;
 }
 
-Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player players[], int *number_of_player, int *isAlive)
+Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player players[], int *number_of_player, int *isAlive, int *isHunter)
 {
-    Player player = {*id, {*x, *y, PLAYER_WIDTH, PLAYER_HIGHT}, *nrOfPoints, *movement, *isAlive};
+    Player player = {*id, {*x, *y, PLAYER_WIDTH, PLAYER_HIGHT}, *nrOfPoints, *movement, *isAlive, *isHunter};
     players[*number_of_player] = player;
     (*number_of_player)++;
     return player;
@@ -55,22 +57,10 @@ Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player
 
 bool isMonster(int id)
 {
-    // test
-    // if (id == 1)
-    //     return false;
-    // else
-    //     return true;
-    if (id == 2)
-        return false;
-    else
-        return true;
-        
+    return id == 3 ? true : false;
 }
 
 int isGameOver(Player me)
 {
-    if (me.isAlive == 0)
-        return 1;
-    else
-        return 0;
+    return me.isAlive == 0 ? 1 : 0;
 }

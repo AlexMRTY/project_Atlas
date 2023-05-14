@@ -20,7 +20,7 @@ CC=gcc
 CFLAGS = -g -c $(INCLUDE)
 
 MAINDEPENDENCIES=main.o world.o collisionDetection.o events.o render.o client.o player.o pause.o endgame.o lobby.o start.o scoreList.o
-SERVERDEPENDENCIES=server.o world.o player.o collisionDetection.o coins.o
+SERVERDEPENDENCIES=server.o world.o player.o collisionDetection.o coins.o client.o
 
 all: main server
 
