@@ -36,6 +36,7 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
             {
                 if (players[currentPlayer].isHunter)
                 {
+                    players[i].isAlive = 0;
                     transmittDiedPlayer(packet, client_socket, players[i].id, *nrOfPlayers);
 
                     Mix_PlayChannel(-1, deathSound, 0);
@@ -47,10 +48,10 @@ bool collisionWithPlayer(Player players[], int currentPlayer, int *nrOfPlayers, 
     return false;
 }
 
-bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update, int currentPlayer)
+bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int *update, int currentPlayer, Player players[])
 {
-    if (!isMonster(currentPlayer))
-    {
+    // if (!isMonster(currentPlayer))
+    // {
         for (int i = 0; i < MAX_COINS; i++)
         {
             Coins *coin = &coins[i];
@@ -60,11 +61,12 @@ bool collisionWithCoins(Coins coins[], int *numberOfPoints, SDL_Rect *rect, int 
                 {
                     coin->isVisible = 0;
                     (*numberOfPoints) += coin->points;
+                    
                     *update = coin->id;
                     return true;
                 }
             }
         }
-    }
+    // }
     return false;
 }

@@ -20,6 +20,7 @@
 #include "headers/lobby.h"
 #include "headers/start.h"
 #include "headers/scoreList.h"
+#include "headers/leaderboards.h"
 
 void playGame(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, SDL_Texture *tTiles, SDL_Rect gTiles[], SDL_Texture *tCoins, SDL_Rect gCoins[], int frame, SDL_Texture *client_textures[], SDL_Rect subtextures[], SDL_Texture *ppTexture);
 void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket);
@@ -209,7 +210,7 @@ int main(int argv, char **args)
     // BACKGROUND
     SDL_Texture *tTiles = NULL;
 
-    loadTiles(pRenderer, &tTiles, gTiles);
+    loadTiles(pRenderer, &tTiles, gTiles);;
 	
 	loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
 
@@ -232,6 +233,8 @@ int main(int argv, char **args)
             pauseMenu(pRenderer, &gameState, &quit, font);
             break;
         case LEADERBOARDS:
+            // printf("leaderboards Active.\n");
+            displayLeaderboard(pRenderer, &gameState, &quit, font, players);
             /* code */
             break;
         

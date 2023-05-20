@@ -29,8 +29,11 @@ void updateIsAlive(int id, int nrOfPlayers, Player players[])
 {
     for (int i = 0; i < nrOfPlayers; i++)
     {
-        if (players[i].id == id)
+        if (players[i].id == id && players[i].isAlive == 1)
             players[i].isAlive = 0;
+            // (*eliminatedPlayers)++;
+            printf("new kill...\n");
+
     }
 }
 

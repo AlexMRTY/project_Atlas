@@ -19,7 +19,7 @@ endif
 CC=gcc
 CFLAGS = -g -c $(INCLUDE)
 
-MAINDEPENDENCIES=main.o world.o collisionDetection.o events.o render.o client.o player.o pause.o endgame.o lobby.o start.o scoreList.o
+MAINDEPENDENCIES=main.o world.o collisionDetection.o events.o render.o client.o player.o pause.o endgame.o lobby.o start.o scoreList.o leaderboards.o
 SERVERDEPENDENCIES=server.o world.o player.o collisionDetection.o coins.o client.o
 
 all: main server
@@ -72,6 +72,9 @@ start.o: $(SRCDIR)$(DIR_SEP)start.c
 
 scoreList.o: $(SRCDIR)$(DIR_SEP)scoreList.c
 	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)scoreList.c
+
+leaderboards.o: $(SRCDIR)$(DIR_SEP)leaderboards.c
+	$(CC) $(CFLAGS) $(SRCDIR)$(DIR_SEP)leaderboards.c
 
 clean:
 	$(RM) *.o *.exe main server

@@ -38,6 +38,9 @@ int main(int argc, char **argv)
     Coins coins[MAX_COINS];
     int numberOfCoins = 0;
     int number_of_players = 0;
+    // int eliminationCount = 0;
+    // int eliminationRecord[4] = {1, 1, 1 , 1};
+    bool gameOver = false;
 
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
@@ -51,10 +54,10 @@ int main(int argc, char **argv)
 
     printf("number of coins: %d\n", numberOfCoins);
 
-    while (1)
+    while (!gameOver)
     {
         // Receive player updates and join requests
-        while (SDLNet_UDP_Recv(server_socket, recieve))
+        if (SDLNet_UDP_Recv(server_socket, recieve))
         {
             long long int tick = SDL_GetTicks();
             nrOfFPS++;
@@ -130,9 +133,25 @@ int main(int argc, char **argv)
             }
             else if (sscanf((char *)recieve->data, "new kill %d", &killId) == 1)
             {
+                    // printf("eleminatedPlayers from recieve (before update) = %d\n", eliminationCount);
                 updateIsAlive(killId, number_of_players, players);
-                printf("new kill...\n");
+                    // printf("eleminatedPlayers from recieve = %d\n", eliminationCount);
+                // if (eliminationCount == 3){
+                // gameOver = true;
+                // }
             }
+
+            // for (int i = 0; i<number_of_players; i++)
+            // {
+            //     if (players[i].isAlive == 0 && eliminationRecord[players[i].id] == 1)
+            //     {
+            //         eliminationRecord[players[i].id]--;
+            //         eliminationCount++;
+            //         printf("eleminatedPlayers = %d\n", eliminationCount);
+            //     }
+            //     gameOver = eliminationCount == 3 ? true : false;
+
+            // }
 
             for (int i = 0; i < number_of_players; i++)
             {

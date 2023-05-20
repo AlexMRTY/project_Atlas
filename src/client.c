@@ -91,12 +91,23 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
                 else if (id2 == me->id)
                 {
                     updateMe(isAlive_2, me);
+                    updatePlayerPos(players, index, x2, y2, movement_2, nrOfPoints_2, isAlive_2);
                 }
                 // Else Update the player position on Window.
                 else
                 {
                     updatePlayerPos(players, index, x2, y2, movement_2, nrOfPoints_2, isAlive_2);
                 }
+                // else if (id2 == me->id)
+                // {
+                //     updateMe(isAlive_2, me);
+
+                // }
+                // // Else Update the player position on Window.
+                // else
+                // {
+                //     updatePlayerPos(players, index, x2, y2, movement_2, nrOfPoints_2, isAlive_2);
+                // }
             }
         }
         else if (sscanf((char *)recieve->data, "coins_response %d %d %d %d %d", &coinX, &coinY, &isVisible, &points, &coinId) == 5)

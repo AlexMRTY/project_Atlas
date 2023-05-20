@@ -13,7 +13,7 @@ void handleEvents(SDL_Rect *rect, int *movement, bool *quit, Mix_Chunk *music, P
 
     while (SDL_PollEvent(&event))
     {
-        // printf("pollevent: %d", SDL_PollEvent(&event));
+        // printf("pollevent: %d", SDL_PollEvent(&event));u
         *quit = handleQuit(&event);
 
         
@@ -38,22 +38,27 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
     {
     case SDLK_w:
         nextPos.y -= PLAYER_MOVE_SPEED;
-        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && amAlive)
+        if (!collisionWithWall(nextPos.x, nextPos.y) && 
+            !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && 
+            amAlive)
         {
             rect->y -= PLAYER_MOVE_SPEED;
             *movement = 1;
             // Mix_PlayChannel(-1, music, 0);
-            // if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
-                // Mix_PlayChannel(-1, coinsSound, 0);
+            collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer, players);
+            // Mix_PlayChannel(-1, coinsSound, 0);
         }
 
         break;
     case SDLK_s:
         nextPos.y += PLAYER_MOVE_SPEED;
-        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && amAlive)
+        if (!collisionWithWall(nextPos.x, nextPos.y) && 
+        !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && 
+        amAlive)
         {
             rect->y += PLAYER_MOVE_SPEED;
             *movement = 2;
+            collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer, players);
             // Mix_PlayChannel(-1, music, 0);
             // if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 // Mix_PlayChannel(-1, coinsSound, 0);
@@ -61,10 +66,13 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
         break;
     case SDLK_a:
         nextPos.x -= PLAYER_MOVE_SPEED;
-        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && amAlive)
+        if (!collisionWithWall(nextPos.x, nextPos.y) && 
+        !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && 
+        amAlive)
         {
             rect->x -= PLAYER_MOVE_SPEED;
             *movement = 3;
+            collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer, players);
             // Mix_PlayChannel(-1, music, 0);
             // if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 // Mix_PlayChannel(-1, coinsSound, 0);
@@ -72,22 +80,25 @@ void transformCharacter(SDL_Event *event, SDL_Rect *rect, int *movement, Mix_Chu
         break;
     case SDLK_d:
         nextPos.x += PLAYER_MOVE_SPEED;
-        if (!collisionWithWall(nextPos.x, nextPos.y) && !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && amAlive)
+        if (!collisionWithWall(nextPos.x, nextPos.y) && 
+        !collisionWithPlayer(players, currentPlayer, nrOfPlayers, &nextPos, deathSound, packet, client_socket) && 
+        amAlive)
         {
             rect->x += PLAYER_MOVE_SPEED;
             *movement = 4;
+            collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer, players);
             // Mix_PlayChannel(-1, music, 0);
             // if (collisionWithCoins(coins, numberOfPoints, rect, update, currentPlayer))
                 // Mix_PlayChannel(-1, coinsSound, 0);
         }
         break;
-    case SDL_KEYUP:
-        // Mix_FreeChunk(music);
-        // Mix_FreeChunk(coinsSound);
+    case SDLK_TAB:
+        (*gameState) = 5;
+       
         break;
     case SDLK_ESCAPE:
         (*gameState) = 4;
-        (*escapePressed) = 1;
+        // (*escapePressed) = 1;
         break;
     // case SDLK_UP:
     //     // Move up
