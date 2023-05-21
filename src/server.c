@@ -15,6 +15,11 @@
 #include "headers/collisionDetection.h"
 #include "headers/coins.h"
 
+int resetServer() 
+{
+    
+}
+
 int main(int argc, char **argv)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
@@ -38,9 +43,9 @@ int main(int argc, char **argv)
     Coins coins[MAX_COINS];
     int numberOfCoins = 0;
     int number_of_players = 0;
-    // int eliminationCount = 0;
-    // int eliminationRecord[4] = {1, 1, 1 , 1};
-    bool gameOver = false;
+    int eliminationCount = 0;
+    int eliminationRecord[4] = {1, 1, 1 , 1};
+    int gameOver = 0;
 
     long long int startingTick = SDL_GetTicks();
     long long int nrOfFPS = 0;
@@ -54,7 +59,7 @@ int main(int argc, char **argv)
 
     printf("number of coins: %d\n", numberOfCoins);
 
-    while (!gameOver)
+    while (1)
     {
         // Receive player updates and join requests
         if (SDLNet_UDP_Recv(server_socket, recieve))
@@ -74,7 +79,6 @@ int main(int argc, char **argv)
             }
 
             int dx, dy, player_id, movement, nrOfPoints, isAlive, coinX, coinY, isVisible, points, coinId, killId, killIsAlive;
-            sscanf((char *)recieve->data, "%d %d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement, &isAlive);
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
             {
@@ -90,7 +94,17 @@ int main(int argc, char **argv)
                 packet->len = strlen((char *)packet->data) + 1;
                 SDLNet_UDP_Send(server_socket, -1, packet);
             }
-
+            else if (sscanf((char *)recieve->data, "player_data %d %d %d %d %d %d", &dx, &dy, &player_id, &nrOfPoints, &movement, &isAlive))
+            {
+                for (int i = 0; i < number_of_players; i++)
+                {
+                    if (players[i].id == player_id)
+                    {
+                        updatePlayerPos(players, i, dx, dy, movement, nrOfPoints, isAlive);
+                        break;
+                    }
+                }
+            }
             else if (sscanf((char *)recieve->data, "coins_update %d %d %d %d %d", &coinX, &coinY, &isVisible, &points, &coinId) == 5)
             {
                 for (int j = 0; j < numberOfCoins; j++)
@@ -133,33 +147,21 @@ int main(int argc, char **argv)
             }
             else if (sscanf((char *)recieve->data, "new kill %d", &killId) == 1)
             {
-                    // printf("eleminatedPlayers from recieve (before update) = %d\n", eliminationCount);
                 updateIsAlive(killId, number_of_players, players);
-                    // printf("eleminatedPlayers from recieve = %d\n", eliminationCount);
-                // if (eliminationCount == 3){
-                // gameOver = true;
-                // }
+               
             }
 
-            // for (int i = 0; i<number_of_players; i++)
-            // {
-            //     if (players[i].isAlive == 0 && eliminationRecord[players[i].id] == 1)
-            //     {
-            //         eliminationRecord[players[i].id]--;
-            //         eliminationCount++;
-            //         printf("eleminatedPlayers = %d\n", eliminationCount);
-            //     }
-            //     gameOver = eliminationCount == 3 ? true : false;
 
-            // }
-
-            for (int i = 0; i < number_of_players; i++)
+            // ENDGAME
+            for (int i = 0; i<number_of_players; i++)
             {
-                if (players[i].id == player_id)
+                if (players[i].isAlive == 0 && eliminationRecord[players[i].id] == 1)
                 {
-                    updatePlayerPos(players, i, dx, dy, movement, nrOfPoints, isAlive);
-                    break;
+                    eliminationRecord[players[i].id] = 0;
+                    eliminationCount++;
+                    // printf("eleminatedPlayers = %d\n", eliminationCount);
                 }
+                gameOver = eliminationCount == 3 ? 1 : 0;
             }
 
             // Send player updates to all clients
@@ -173,16 +175,23 @@ int main(int argc, char **argv)
 
                     for (int j = 0; j < number_of_players; j++)
                     {
-                        //     if (i != j)
-                        //    {
-                        sprintf((char *)update_packet->data, "player_data %d %d %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement, players[j].isAlive, players[j].isHunter);
+                        if (!gameOver)
+                        {
+                            sprintf((char *)update_packet->data, "player_data %d %d %d %d %d %d %d", players[j].rect.x, players[j].rect.y, players[j].id, players[j].numberOfPoints, players[j].movement, players[j].isAlive, players[j].isHunter);
+                        } else {
+                            sprintf((char *)update_packet->data, "gameOver %d", gameOver);
+                        }
                         update_packet->len = strlen((char *)update_packet->data) + 1;
 
                         SDLNet_UDP_Send(server_socket, -1, update_packet);
-                        // printf("Sending data to player %d\n", players[i].id);
-                        //   }
+                        printf("Sending data to player %d\n", players[i].id);
                     }
                     SDLNet_FreePacket(update_packet);
+                }
+
+                if (gameOver) {
+                    gameOver = 0;
+                    number_of_players = 0;
                 }
             }
         }
@@ -195,3 +204,4 @@ int main(int argc, char **argv)
 
     return 0;
 }
+

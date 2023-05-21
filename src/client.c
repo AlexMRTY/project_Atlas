@@ -23,7 +23,7 @@ void printPlayerData(UDPpacket *recieve)
 
 void transmitData(Player *me, UDPpacket *packet, UDPsocket *client_socket)
 {
-    sprintf((char *)packet->data, "%d %d %d %d %d %d", me->rect.x, me->rect.y, me->id, me->numberOfPoints, me->movement, me->isAlive);
+    sprintf((char *)packet->data, "player_data %d %d %d %d %d %d", me->rect.x, me->rect.y, me->id, me->numberOfPoints, me->movement, me->isAlive);
     packet->len = strlen((char *)packet->data) + 1;
     SDLNet_UDP_Send(*client_socket, -1, packet);
     // printf("Sending Coins Data\n");
@@ -52,7 +52,7 @@ void transmittDiedPlayer(UDPpacket *packet, UDPsocket *client_socket, int id, in
     // }
 }
 
-void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numberOfCoins)
+void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numberOfCoins, int *gameOver, int *gameState)
 {
     // *joinedServer = false;
     while (SDLNet_UDP_Recv(*client_socket, recieve))
@@ -120,6 +120,14 @@ void HandleUDPRecv(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *pack
         {
             coins[coinId].isVisible = isVisible;
             // printf("coins_data has been updated\n");
+        }
+        else if (sscanf((char *)recieve->data, "gameOver %d", gameOver) == 1)
+        {
+            // The value is saved in gameOver.
+            printf("gameOver message recieved.\n");
+            (*gameState) = 5;
+            (*joinedServer) = false;
+            (*number_of_player) = 0;
         }
         // In case the recieved packet is not from our server.
         else

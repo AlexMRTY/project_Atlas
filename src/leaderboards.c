@@ -23,9 +23,10 @@
 
 #define CELL_PADDING 50
 #define FOOTER_BOTTOM_PADDING 200
+#define RESULT_TOP_PADDING 100
 
-void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, TTF_Font * font, Player players[]) {
-    printf("leader board is displayed.\n");
+void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, TTF_Font * font, Player players[], int *gameOver) {
+    // printf("leader board is displayed.\n");
 
     // Define leaderboard data
     // const char* names[NUM_ROWS] = {"Player 1", "Player 2", "Player 3", "Player 4", "Player 5"};
@@ -56,14 +57,52 @@ void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, 
 
     // Define table header
     const char* header[] = {"Name", "Score"};
+    SDL_Color text_color = {255, 255, 255, 255};
 
 
     // Render backdrop
     renderMenuBackdrop(pRenderer);
 
+    if ((*gameOver)) {
+        SDL_Surface* result_surface;
+        SDL_Texture* result_texture;
+        if (players[0].isAlive)
+        {
+            // Display You won!
+            result_surface = TTF_RenderText_Solid(font, "You Won", text_color);
+            if (!result_surface) {
+                printf("Failed to create surface: %s\n", SDL_GetError());
+            }
+            result_texture = SDL_CreateTextureFromSurface(pRenderer, result_surface);
+            if (!result_texture) {
+                printf("Failed to create texture: %s\n", SDL_GetError());
+                SDL_FreeSurface(result_surface);
+            }
+        } else {
+            // Display You Lost!
+            result_surface = TTF_RenderText_Solid(font, "You Lost", text_color);
+            if (!result_surface) {
+                printf("Failed to create surface: %s\n", SDL_GetError());
+            }
+            result_texture = SDL_CreateTextureFromSurface(pRenderer, result_surface);
+            if (!result_texture) {
+                printf("Failed to create texture: %s\n", SDL_GetError());
+                SDL_FreeSurface(result_surface);
+            }
+        }
+        SDL_Rect result_rect;
+        SDL_QueryTexture(result_texture, 0, 0, &result_rect.w, &result_rect.h);
+        
+        result_rect.x = WINDOW_WIDTH/2 - result_rect.w/2;
+        result_rect.y = WINDOW_HEIGHT - (WINDOW_HEIGHT - RESULT_TOP_PADDING);
+
+        SDL_RenderCopy(pRenderer, result_texture, NULL, &result_rect);
+        SDL_FreeSurface(result_surface);
+        SDL_DestroyTexture(result_texture);
+    }
+
 
     // Render the table header
-    SDL_Color text_color = {255, 255, 255, 255};
     SDL_Rect header_rects[NUM_COLUMNS];
 
     for (int i = 0; i < NUM_COLUMNS; i++) {
@@ -173,7 +212,6 @@ void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, 
     footer_rect.h *= 0.7;
     footer_rect.x = WINDOW_WIDTH/2 - footer_rect.w/2;
     footer_rect.y = WINDOW_HEIGHT - FOOTER_BOTTOM_PADDING;
-    
 
     SDL_RenderCopy(pRenderer, footer_texture, NULL, &footer_rect);
     SDL_FreeSurface(footer_surface);
@@ -190,7 +228,7 @@ void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, 
         switch (event.key.keysym.sym)
         {
             case SDLK_RETURN:
-                (*gameState) = 3;
+                (*gameState) = (*gameOver) ? 1 : 3;
                 break;
             default:
                 break;

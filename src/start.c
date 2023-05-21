@@ -71,6 +71,14 @@ void displayStartMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *
     SDL_RenderCopy(pRenderer, newGameTexture, NULL, &pos[0]);
     SDL_RenderCopy(pRenderer, exitTexture, NULL, &pos[1]);
 
+    
+    SDL_FreeSurface(menus[0]);
+    SDL_FreeSurface(menus[1]);
+    SDL_DestroyTexture(newGameTexture);
+    SDL_DestroyTexture(exitTexture);
+
+    
+
     SDL_Event event;
 
     SDL_Texture *temp1;
@@ -95,11 +103,7 @@ void displayStartMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *
         case SDLK_RETURN:
             if (selected == 1)
             {
-                for (int i = 0; i < GAMEMENUOPTIONS; i++)
-                {
-                    SDL_FreeSurface(menus[i]);
-                }
-                // return selected;
+                // return selected;a
                 (*gameState) = 2;
                 return;
             }
