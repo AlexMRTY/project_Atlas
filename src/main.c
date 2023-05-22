@@ -24,7 +24,7 @@
 
 void playGame(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, SDL_Texture *tTiles, SDL_Rect gTiles[], SDL_Texture *tCoins, SDL_Rect gCoins[], int frame, SDL_Texture *client_textures[], SDL_Rect subtextures[], SDL_Texture *ppTexture, int *gameOver);
 
-void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket);
+void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket, Mix_Chunk *clickOptionSFX, Mix_Chunk *selectSFX);
 
 void lobby(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, int *gameOver);
 
@@ -100,6 +100,18 @@ int main(int argv, char **args)
 
     Mix_Music *gameOverSound = Mix_LoadMUS("resources/gameOver.wav");
     if (gameMusic == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
+
+    Mix_Chunk *keyPressed = Mix_LoadWAV("resources/interface.mp3");
+    if (music == NULL)
+    {
+        printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
+    }
+
+    Mix_Chunk *selectSound = Mix_LoadWAV("resources/beep.mp3");
+    if (music == NULL)
     {
         printf("Failed to load music! SDL2_mixer Error: %s\n", Mix_GetError());
     }
@@ -217,14 +229,13 @@ int main(int argv, char **args)
 	
 	loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
 
-
-
+    Mix_PlayMusic(gameMusic, -1);
     while (!quit)
     {
         switch (gameState)
         {
         case START_MENU:
-            startMenu(pRenderer, &quit, font, &gameState, &joinedServer, packet, &client_socket);
+            startMenu(pRenderer, &quit, font, &gameState, &joinedServer, packet, &client_socket, keyPressed, selectSound);
             break;
         case LOBBY:
             me.isAlive = 1; // makes the game work on windows
@@ -234,11 +245,11 @@ int main(int argv, char **args)
             playGame(&client_socket, recieve, packet, players, &me, &number_of_player, &joinedServer, coins, &numCoins, pRenderer, font, &quit, music, coinsSound, deathSound, &update, &escapePressed, &gameState, tTiles, gTiles, tCoins, gCoins, frame, client_textures, subtextures, ppTexture, &gameOver);
             break;
         case PAUSE_MENU:
-            pauseMenu(pRenderer, &gameState, &quit, font);
+            pauseMenu(pRenderer, &gameState, &quit, font, keyPressed, selectSound);
             break;
         case LEADERBOARDS:
             // printf("leaderboards Active.\n");
-            displayLeaderboard(pRenderer, &gameState, &quit, font, players, &gameOver);
+            displayLeaderboard(pRenderer, &gameState, &quit, font, players, &gameOver, me.isHunter, me.id);
             /* code */
             break;
         
@@ -306,9 +317,9 @@ void playGame(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, P
     SDL_RenderPresent(pRenderer); 
 }
 
-void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket)
+void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket, Mix_Chunk *clickOptionSFX, Mix_Chunk *selectSFX)
 {
-    displayStartMenu(pRenderer, quit, font, gameState);
+    displayStartMenu(pRenderer, quit, font, gameState, clickOptionSFX, selectSFX);
     
     if (*gameState == 2) // lobby
     {

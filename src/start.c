@@ -1,10 +1,11 @@
 #include "headers/start.h"
 #include <SDL2/SDL_ttf.h>
+#include "SDL2/SDL_mixer.h"
 #include "headers/globalConst.h"
 
 #include <stdbool.h>
 
-void displayStartMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState)
+void displayStartMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, Mix_Chunk *clickOptionSFX, Mix_Chunk *selectSFX)
 {
     int x, y;
     const char *labels[GAMEMENUOPTIONS] = {"Start A New Game", "Exit"};
@@ -95,22 +96,30 @@ void displayStartMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *
         case SDLK_UP:
             selected = 1;
             activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+            Mix_PlayChannel(-1, selectSFX, 0);
             break;
         case SDLK_DOWN:
             selected = 2;
             activeMenu(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+            Mix_PlayChannel(-1, selectSFX, 0);
             break;
         case SDLK_RETURN:
             if (selected == 1)
             {
                 // return selected;a
+                Mix_PlayChannel(-1, clickOptionSFX, 0);
                 (*gameState) = 2;
                 return;
             }
             else if (selected == 2)
             {
+                Mix_PlayChannel(-1, clickOptionSFX, 0);
                 *quit = true;
             }
+            break;
+        case SDL_KEYUP:
+            Mix_FreeChunk(selectSFX);
+            Mix_FreeChunk(clickOptionSFX);
             break;
         default:
             break;
@@ -132,4 +141,5 @@ void activeMenu(SDL_Renderer *pRenderer, SDL_Surface *menus[], SDL_Color color[]
     temp2 = SDL_CreateTextureFromSurface(pRenderer, menus[1]);
     SDL_RenderCopy(pRenderer, temp1, NULL, &pos[0]);
     SDL_RenderCopy(pRenderer, temp2, NULL, &pos[1]);
+
 }

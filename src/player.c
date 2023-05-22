@@ -53,6 +53,9 @@ int playerExists(int *nrOfPlayers, Player players[], int *index, int lookUpId)
 Player addPlayer(int *id, int *x, int *y, int *nrOfPoints, int *movement, Player players[], int *number_of_player, int *isAlive, int *isHunter)
 {
     Player player = {*id, {*x, *y, PLAYER_WIDTH, PLAYER_HIGHT}, *nrOfPoints, *movement, *isAlive, *isHunter};
+    if (*isHunter){
+        printf("player %d is Hunter\n", *id);
+    }
     players[*number_of_player] = player;
     (*number_of_player)++;
     return player;
@@ -66,4 +69,20 @@ bool isMonster(int id)
 int isGameOver(Player me)
 {
     return me.isAlive == 0 ? 1 : 0;
+}
+
+int winnerIs(Player players[])
+{
+    int prevScore = 0;
+    int winner;
+    for (int i=0 ; i<MAX_PLAYERS ; i++)
+    {
+        if (players[i].numberOfPoints > prevScore)
+        {
+            prevScore = players[i].numberOfPoints;
+            winner = i;
+        }
+    }
+
+    return winner;
 }

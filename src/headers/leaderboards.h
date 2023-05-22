@@ -3,7 +3,7 @@
 
 #include "player.h"
 
-void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, TTF_Font * fonts, Player players[], int *gameOver);
+void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, TTF_Font * fonts, Player players[], int *gameOver, int amHunter, int myId);
 
 
 #endif

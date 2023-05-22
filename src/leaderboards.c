@@ -25,7 +25,7 @@
 #define FOOTER_BOTTOM_PADDING 200
 #define RESULT_TOP_PADDING 100
 
-void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, TTF_Font * font, Player players[], int *gameOver) {
+void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, TTF_Font * font, Player players[], int *gameOver, int amHunter, int myId) {
     // printf("leader board is displayed.\n");
 
     // Define leaderboard data
@@ -63,33 +63,28 @@ void displayLeaderboard(SDL_Renderer * pRenderer, int * gameState, bool * quit, 
     // Render backdrop
     renderMenuBackdrop(pRenderer);
 
-    if ((*gameOver)) {
-        SDL_Surface* result_surface;
-        SDL_Texture* result_texture;
-        if (players[0].isAlive)
+    if ((*gameOver) && !amHunter) {
+
+        char result[10];
+        if (winnerIs(players) == myId)
         {
-            // Display You won!
-            result_surface = TTF_RenderText_Solid(font, "You Won", text_color);
-            if (!result_surface) {
-                printf("Failed to create surface: %s\n", SDL_GetError());
-            }
-            result_texture = SDL_CreateTextureFromSurface(pRenderer, result_surface);
-            if (!result_texture) {
-                printf("Failed to create texture: %s\n", SDL_GetError());
-                SDL_FreeSurface(result_surface);
-            }
+            strcpy(result, "You Won");
+            
         } else {
             // Display You Lost!
-            result_surface = TTF_RenderText_Solid(font, "You Lost", text_color);
+            strcpy(result, "You Lost");
+            
+        }
+        SDL_Surface* result_surface = TTF_RenderText_Solid(font, result, text_color);
             if (!result_surface) {
                 printf("Failed to create surface: %s\n", SDL_GetError());
             }
-            result_texture = SDL_CreateTextureFromSurface(pRenderer, result_surface);
-            if (!result_texture) {
-                printf("Failed to create texture: %s\n", SDL_GetError());
-                SDL_FreeSurface(result_surface);
-            }
+        SDL_Texture* result_texture = SDL_CreateTextureFromSurface(pRenderer, result_surface);
+        if (!result_texture) {
+            printf("Failed to create texture: %s\n", SDL_GetError());
+            SDL_FreeSurface(result_surface);
         }
+
         SDL_Rect result_rect;
         SDL_QueryTexture(result_texture, 0, 0, &result_rect.w, &result_rect.h);
         

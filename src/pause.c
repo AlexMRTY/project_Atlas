@@ -2,9 +2,11 @@
 #include <SDL2/SDL_ttf.h>
 #include "headers/globalConst.h"
 #include "headers/render.h"
+#include "SDL2/SDL_mixer.h"
 
 
-void pauseMenu(SDL_Renderer *pRenderer, int *gameState, bool *quit, TTF_Font* font)
+
+void pauseMenu(SDL_Renderer *pRenderer, int *gameState, bool *quit, TTF_Font* font, Mix_Chunk *clickOptionSFX, Mix_Chunk *selectSFX)
 {
     int x, y;
     const char* labels[NUMOFMENUOPTIONS] = {"Continue","Exit"};
@@ -61,21 +63,29 @@ void pauseMenu(SDL_Renderer *pRenderer, int *gameState, bool *quit, TTF_Font* fo
             case SDLK_UP:
                 selected = 1;
                 activeOption(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+                Mix_PlayChannel(-1, selectSFX, 0);
                 break;
             case SDLK_DOWN:
                 selected = 2;
                 activeOption(pRenderer, menus, color, pos, temp1, temp2, font, selected);
+                Mix_PlayChannel(-1, selectSFX, 0);
 
                 break;
             case SDLK_RETURN:
                 if (selected == 1) {
+                    Mix_PlayChannel(-1, clickOptionSFX, 0);
                     (*gameState) = 3;
                     for (int i=0 ; i<NUMOFMENUOPTIONS ; i++) {
                         SDL_FreeSurface(menus[i]);
                     }
                 } else if(selected == 2) {
+                    Mix_PlayChannel(-1, clickOptionSFX, 0);
                     *quit = true;
                 }
+                break;
+            case SDL_KEYUP:
+                Mix_FreeChunk(selectSFX);
+                Mix_FreeChunk(clickOptionSFX);
                 break;
             default:
                 break;

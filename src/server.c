@@ -78,7 +78,7 @@ int main(int argc, char **argv)
                 nrOfFPS = 0;
             }
 
-            int dx, dy, player_id, movement, nrOfPoints, isAlive, coinX, coinY, isVisible, points, coinId, killId, killIsAlive;
+            int dx, dy, player_id, movement, nrOfPoints, isAlive, coinX, coinY, isVisible, points, coinId, killId, killIsAlive, killer;
 
             if (strcmp((char *)recieve->data, "join_request") == 0 && number_of_players < MAX_PLAYERS)
             {
@@ -148,6 +148,7 @@ int main(int argc, char **argv)
             else if (sscanf((char *)recieve->data, "new kill %d", &killId) == 1)
             {
                 updateIsAlive(killId, number_of_players, players);
+                // printf("Killer >> Player %d\n", killer);
                
             }
 
@@ -184,7 +185,7 @@ int main(int argc, char **argv)
                         update_packet->len = strlen((char *)update_packet->data) + 1;
 
                         SDLNet_UDP_Send(server_socket, -1, update_packet);
-                        printf("Sending data to player %d\n", players[i].id);
+                        // printf("Sending data to player %d\n", players[i].id);
                     }
                     SDLNet_FreePacket(update_packet);
                 }

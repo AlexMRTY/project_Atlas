@@ -36,7 +36,7 @@ void transmitCoins(Coins coins[], int numberOfCoins, UDPpacket *packet, UDPsocke
     SDLNet_UDP_Send(*client_socket, -1, packet);
 }
 
-void transmittDiedPlayer(UDPpacket *packet, UDPsocket *client_socket, int id, int numberOfPlayers)
+void transmittDiedPlayer(UDPpacket *packet, UDPsocket *client_socket, int id, int numberOfPlayers, int killerId)
 {
     sprintf((char *)packet->data, "new kill %d", id);
     packet->len = strlen((char *)packet->data) + 1;
