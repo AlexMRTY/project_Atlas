@@ -19,8 +19,8 @@
 #include "headers/endgame.h"
 #include "headers/lobby.h"
 #include "headers/start.h"
-#include "headers/scoreList.h"
 #include "headers/leaderboards.h"
+#include "headers/playGame.h"
 
 void playGame(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, SDL_Texture *tTiles, SDL_Rect gTiles[], SDL_Texture *tCoins, SDL_Rect gCoins[], int frame, SDL_Texture *client_textures[], SDL_Rect subtextures[], SDL_Texture *ppTexture, int *gameOver);
 
@@ -225,7 +225,7 @@ int main(int argv, char **args)
     // BACKGROUND
     SDL_Texture *tTiles = NULL;
 
-    loadTiles(pRenderer, &tTiles, gTiles);;
+    loadTiles(pRenderer, &tTiles, gTiles);
 	
 	loadCoins(pRenderer, &tCoins, coins, &numCoins, gCoins);
 
@@ -272,83 +272,4 @@ int main(int argv, char **args)
     SDL_Quit();
 
     return 0;
-}
-
-
-void playGame(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, SDL_Texture *tTiles, SDL_Rect gTiles[], SDL_Texture *tCoins, SDL_Rect gCoins[], int frame, SDL_Texture *client_textures[], SDL_Rect subtextures[], SDL_Texture *ppTexture, int *gameOver)
-{
-    HandleUDPRecv(client_socket, recieve, packet, players, me, number_of_player, joinedServer, coins, numCoins, gameOver, gameState);
-
-    if (!joinedServer) return;
-
-    // Handles quit and movement events
-    handleEvents(&me->rect, &me->movement, quit, music, players, me->id, number_of_player, &me->numberOfPoints, coins, coinsSound, update, deathSound, escapePressed, me->isAlive, gameState, packet, client_socket);
-
-    // Transmit cordinates data to server
-    transmitData(me, packet, client_socket);
-
-    // Transmit coins data to server
-    transmitCoins(coins, *numCoins, packet, client_socket, *update);
-
-    // if (me->isHunter) 
-    // {
-    //     transmittDiedPlayer(packet, client_socket, players, *number_of_player);
-    // }
-
-    // Clear Window
-    SDL_SetRenderDrawColor(pRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(pRenderer);
-
-    // Render background
-    renderMap(pRenderer, tTiles, gTiles);
-
-    // Render all coins
-    renderCoins(pRenderer, &tCoins, coins, *numCoins, gCoins, frame);
-
-    // Render all players
-    renderPlayers(pRenderer, client_textures, subtextures, NUM_SUBTEXTURES, players, *number_of_player, *me, ppTexture);
-
-    // TESTING GAMEOVER/VICTORY
-    if (!me->isAlive) {
-        endGame(pRenderer, font, 0);
-    }
-    
-    // Render frame
-    SDL_RenderPresent(pRenderer); 
-}
-
-void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket, Mix_Chunk *clickOptionSFX, Mix_Chunk *selectSFX)
-{
-    displayStartMenu(pRenderer, quit, font, gameState, clickOptionSFX, selectSFX);
-    
-    if (*gameState == 2) // lobby
-    {
-        strcpy((char *)packet->data, "join_request");
-        packet->len = strlen((char *)packet->data) + 1;
-        SDLNet_UDP_Send((*client_socket), -1, packet);
-
-        strcpy((char *)packet->data, "coins_request");
-        packet->len = strlen((char *)packet->data) + 1;
-        SDLNet_UDP_Send((*client_socket), -1, packet);
-        (*joinedServer) = false;
-
-        printf("Request Send\n");
-    }
-}
-
-void lobby(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, int *gameOver)
-{
-    HandleUDPRecv(client_socket, recieve, packet, players, me, number_of_player, joinedServer, coins, numCoins, gameOver, gameState);
-
-    handleEvents(&me->rect, &me->movement, quit, music, players, me->id, number_of_player, &me->numberOfPoints, coins, coinsSound, update, deathSound, escapePressed, me->isAlive, gameState, packet, client_socket);
-
-    transmitData(me, packet, client_socket);
-
-    waitingForPlayers(pRenderer, font, *number_of_player);
-
-    if ((*number_of_player) == 4) 
-    {
-        (*gameState) = 3; 
-    }
-
 }

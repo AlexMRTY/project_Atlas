@@ -68,3 +68,19 @@ void waitingForPlayers(SDL_Renderer *pRenderer, TTF_Font* font, int numOfPlayers
     // // renderMenuBackdrop(pRenderer);
     // SDL_RenderCopy(pRenderer, texture, NULL, &rect);
 }
+
+void lobby(UDPsocket *client_socket, UDPpacket *recieve, UDPpacket *packet, Player players[], Player *me, int *number_of_player, bool *joinedServer, Coins coins[], int *numCoins, SDL_Renderer *pRenderer, TTF_Font *font, bool *quit, Mix_Chunk *music, Mix_Chunk *coinsSound, Mix_Chunk *deathSound, int *update, int *escapePressed, int *gameState, int *gameOver)
+{
+    HandleUDPRecv(client_socket, recieve, packet, players, me, number_of_player, joinedServer, coins, numCoins, gameOver, gameState);
+
+    handleEvents(&me->rect, &me->movement, quit, music, players, me->id, number_of_player, &me->numberOfPoints, coins, coinsSound, update, deathSound, escapePressed, me->isAlive, gameState, packet, client_socket);
+
+    transmitData(me, packet, client_socket);
+
+    waitingForPlayers(pRenderer, font, *number_of_player);
+
+    if ((*number_of_player) == 4) 
+    {
+        (*gameState) = 3; 
+    }
+}

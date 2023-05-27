@@ -143,3 +143,22 @@ void activeMenu(SDL_Renderer *pRenderer, SDL_Surface *menus[], SDL_Color color[]
     SDL_RenderCopy(pRenderer, temp2, NULL, &pos[1]);
 
 }
+
+void startMenu(SDL_Renderer *pRenderer, bool *quit, TTF_Font *font, int *gameState, bool *joinedServer, UDPpacket *packet, UDPsocket *client_socket, Mix_Chunk *clickOptionSFX, Mix_Chunk *selectSFX)
+{
+    displayStartMenu(pRenderer, quit, font, gameState, clickOptionSFX, selectSFX);
+    
+    if (*gameState == 2) // lobby
+    {
+        strcpy((char *)packet->data, "join_request");
+        packet->len = strlen((char *)packet->data) + 1;
+        SDLNet_UDP_Send((*client_socket), -1, packet);
+
+        strcpy((char *)packet->data, "coins_request");
+        packet->len = strlen((char *)packet->data) + 1;
+        SDLNet_UDP_Send((*client_socket), -1, packet);
+        (*joinedServer) = false;
+
+        printf("Request Send\n");
+    }
+}
